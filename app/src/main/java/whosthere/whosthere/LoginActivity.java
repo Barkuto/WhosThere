@@ -48,7 +48,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void register() {
-        Log.i("Who", DB.hasUser("test@email.com") + "");
     }
 }
 
