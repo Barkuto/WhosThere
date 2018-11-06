@@ -2,6 +2,7 @@ package whosthere.whosthere;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AutoCompleteTextView;
@@ -23,16 +24,31 @@ public class LoginActivity extends AppCompatActivity {
         mEmailView = findViewById(R.id.email);
         mPasswordView = findViewById(R.id.password);
 
-        Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
+        Button mEmailSignInButton = findViewById(R.id.sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                //attemptLogin();
+                attemptLogin();
+            }
+        });
+
+        Button mRegisterButton = findViewById(R.id.register_button);
+        mRegisterButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                register();
             }
         });
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+    }
+
+    public void attemptLogin() {
+    }
+
+    public void register() {
+        Log.i("Who", DB.hasUser("test@email.com") + "");
     }
 }
 
