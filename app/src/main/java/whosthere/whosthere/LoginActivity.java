@@ -1,5 +1,6 @@
 package whosthere.whosthere;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -37,6 +38,16 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 register();
+            }
+        });
+
+        Button mTestButton = findViewById(R.id.test_button);
+        mTestButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent testIntent = new Intent(LoginActivity.this, BottomNavigation.class);
+                LoginActivity.this.startActivity(testIntent);
+
             }
         });
 
