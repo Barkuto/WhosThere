@@ -19,6 +19,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".Dashboard" />
+        <activity
+            android:name=".BottomNavigation"
+            android:label="@string/title_activity_bottom_navigation"></activity>
     </application>
 
 </manifest>
