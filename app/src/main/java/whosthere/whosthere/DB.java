@@ -1,12 +1,15 @@
 package whosthere.whosthere;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.function.Consumer;
 
 public class DB {
     public static final FirebaseDatabase fdb = FirebaseDatabase.getInstance();
@@ -44,11 +47,13 @@ public class DB {
     }
 
     public static boolean hasUser(String username) {
-        return hasPath(USERSTABLE + "/" + USERS_USERNAME + "/" + username);
+        return hasPath(USERSTABLE + "/" + username);
     }
 
     private static boolean hasPath(String path) {
-        return new HasValueEventListener(path).hasValue;
+        HasValueEventListener hvel = new HasValueEventListener(path);
+        dbr.addListenerForSingleValueEvent(hvel);
+        return hvel.hasValue;
     }
 
     private static class HasValueEventListener implements ValueEventListener {
@@ -62,6 +67,14 @@ public class DB {
 
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            Log.i("Who", path);
+            dataSnapshot.child(path).getChildren().forEach(new Consumer<DataSnapshot>() {
+                @Override
+                public void accept(DataSnapshot dataSnapshot) {
+                    Log.i("Who", dataSnapshot.getKey());
+                }
+            });
+            Log.i("Who", dataSnapshot.child(path).exists() + "");
             hasValue = dataSnapshot.child(path).exists();
         }
 
