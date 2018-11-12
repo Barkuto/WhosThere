@@ -45,6 +45,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void attemptLogin() {
+        DB.verifyUserLogin(mEmailView.getText().toString(), mPasswordView.getText().toString(), new Doer<Boolean>() {
+            @Override
+            public void doFromResult(Boolean result) {
+                Log.i("Who", "Logged in?: " + result);
+            }
+        });
     }
 
     public void register() {
