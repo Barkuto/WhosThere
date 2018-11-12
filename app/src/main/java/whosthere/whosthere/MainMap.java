@@ -26,6 +26,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 import java.security.Security;
+import java.util.ArrayList;
 
 public class MainMap extends FragmentActivity implements OnMapReadyCallback {
 
@@ -36,8 +37,11 @@ public class MainMap extends FragmentActivity implements OnMapReadyCallback {
     private static final int LOCATION_REQUEST_CODE = 123;
     private static final float DEFAULT_ZOOM = 15f;
 
+    private Location myLocation;
     private boolean permissionsGranted = false;
     private FusedLocationProviderClient mFusedLocationProviderClient;
+
+    private ArrayList<Friend> friendList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,10 +69,25 @@ public class MainMap extends FragmentActivity implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        getLocationPermission();
+
         if (permissionsGranted) {
             getCurrentLocation();
-        }
 
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            mMap.setMyLocationEnabled(true);
+            //mMap.getUiSettings().setMyLocationButtonEnabled(false);
+            //mMap.getUiSettings().
+
+            generateFriendsList();
+
+        } else {
+            Toast.makeText(MainMap.this, "Unable to load data: Permissions not granted 🤦‍♀️", Toast.LENGTH_LONG).show();
+        }
 
         // Add a marker in Sydney and move the camera
         /*LatLng sydney = new LatLng(-34, 151);
@@ -76,11 +95,60 @@ public class MainMap extends FragmentActivity implements OnMapReadyCallback {
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));*/
     }
 
+
+    private void generateFriendsList() {
+        friendList = new ArrayList<Friend>();
+
+        friendList.add(new Friend(new LatLng(38.989886, -76.936306),
+                "Bruce", "Wayne", "Batman"));
+        friendList.add(new Friend(new LatLng(38.987260, -76.942088),
+                "Dick", "Grayson", "Nightwing"));
+        friendList.add(new Friend(new LatLng(38.987923, -76.944648),
+                "Barbara", "Gordan", "Batgirl"));
+        friendList.add(new Friend(new LatLng(38.897392, -77.037002),
+                "Tim", "Drake", "Red Robin"));
+        friendList.add(new Friend(new LatLng(27.989720, -81.688442),
+                "Jason", "Todd", "Red Hood"));
+        friendList.add(new Friend(new LatLng(27.987700, 86.925954),
+                "Stephanie", "Brown", "Spoiler"));
+        friendList.add(new Friend(new LatLng(39.286132, -76.608427),
+                "Alfred", "Pennyworth", "The Butler"));
+        friendList.add(new Friend(new LatLng(40.772290, -73.980208),
+                "Damian", "Wayne", "Batman"));
+        friendList.add(new Friend(new LatLng(37.421716, -122.084344),
+                "Selina", "Kyle", "Catwoman"));
+        friendList.add(new Friend(new LatLng(42.946947, -122.097894),
+                "Katherine", "Kane", "Batwoman"));
+
+        mapFriends(friendList);
+    }
+
+    private void mapFriends(ArrayList<Friend> friendList) {
+        for (Friend friend : friendList) {
+            Location friendLocation = new Location("");
+            friendLocation.setLatitude(friend.getLocation().latitude);
+            friendLocation.setLongitude(friend.getLocation().longitude);
+            friend.setDistanceAway(myLocation.distanceTo(friendLocation));
+            LatLng location = friend.getLocation();
+            mMap.addMarker(new MarkerOptions().position(location).title(friend.getUserName()));
+            //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        }
+    }
+
+
+    /**
+     * Move focus of the map top a given LatLng location.
+     */
     private void moveCamera(LatLng latLng, float zoom) {
         Log.d(TAG, "Moving camera to (" + latLng.latitude + "," + latLng.longitude + ")");
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
     }
 
+
+    /**
+     * Get the user's current location if location permissions were granted successfully.
+     * A mtoast message will be printed if not.
+     */
     private void getCurrentLocation() {
         Log.d(TAG, "getDeviceLocation called: getting the user's current location");
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -93,6 +161,7 @@ public class MainMap extends FragmentActivity implements OnMapReadyCallback {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "Location was found!");
                             Location currentLocation = (Location) task.getResult();
+                            myLocation = currentLocation;
                             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM);
                         } else {
                             Log.d(TAG, "Location was NOT found!");
@@ -108,7 +177,8 @@ public class MainMap extends FragmentActivity implements OnMapReadyCallback {
 
 
     /**
-     * Permission methods
+     * Helper methods to get and set required location permissions.
+     * Map will display if not, however information will not be shown.
      */
     private void getLocationPermission() {
         String[] permissions = {FINE_LOCATION, COARSE_LOCATION};
@@ -142,5 +212,4 @@ public class MainMap extends FragmentActivity implements OnMapReadyCallback {
             }
         }
     }
-
 }
