@@ -9,6 +9,13 @@ import android.view.View.OnClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import java.util.regex.Pattern;
+
+import whosthere.whosthere.db.DB;
+import whosthere.whosthere.db.Doer;
+import whosthere.whosthere.db.UserInfo;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -59,12 +66,50 @@ public class LoginActivity extends AppCompatActivity {
         DB.verifyUserLogin(mEmailView.getText().toString(), mPasswordView.getText().toString(), new Doer<Boolean>() {
             @Override
             public void doFromResult(Boolean result) {
-                Log.i("Who", "Logged in?: " + result);
+                Toast.makeText(getApplicationContext(), result ? "Logged in" : "Invalid Credentials", Toast.LENGTH_LONG).show();
+                DB.getUserInfo(mEmailView.getText().toString(), new Doer<UserInfo>() {
+                    @Override
+                    public void doFromResult(UserInfo result) {
+                        Log.i("Who", result.getFriends().toString());
+                        Log.i("Who", result.getSettings().toString());
+                    }
+                });
             }
         });
     }
 
     public void register() {
+        DB.addUser(parseUsername(), parseEmail(), parsePassword(), new Doer<Boolean>() {
+            @Override
+            public void doFromResult(Boolean result) {
+                if (result) {
+                    Toast.makeText(getApplicationContext(), "User Added", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "User Already Exists", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    private String parseEmail() throws InvalidEmailFormatException {
+        String text = mEmailView.getText().toString();
+        Pattern p = Pattern.compile("[a-zA-Z0-9.]+@[a-zA-Z0-9.]+.[a-zA-Z0-9.]+");
+        if (!text.contains("@")) throw new InvalidEmailFormatException("Email must contain @");
+        return mEmailView.getText().toString();
+    }
+
+    private String parseUsername() throws InvalidEmailFormatException {
+        return parseEmail().substring(0, parseEmail().indexOf("@"));
+    }
+
+    private String parsePassword() {
+        return mPasswordView.getText().toString();
+    }
+
+    private class InvalidEmailFormatException extends Exception {
+        InvalidEmailFormatException(String message) {
+            super(message);
+        }
     }
 }
 
