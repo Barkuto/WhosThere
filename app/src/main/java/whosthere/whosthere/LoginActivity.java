@@ -55,7 +55,8 @@ public class LoginActivity extends AppCompatActivity {
         mTestButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent testIntent = new Intent(LoginActivity.this, BottomNavigation.class);
+                //Intent testIntent = new Intent(LoginActivity.this, BottomNavigation.class);
+                Intent testIntent = new Intent(LoginActivity.this, MainMap.class);
                 LoginActivity.this.startActivity(testIntent);
 
             }
