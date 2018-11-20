@@ -2,6 +2,7 @@ package whosthere.whosthere.db;
 
 import android.support.annotation.NonNull;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -54,7 +55,7 @@ public class DB {
                     UserInfo userInfo = new UserInfo(email, "PICURL", new ArrayList<String>(), new ArrayList<Integer>());
                     setValue(usersPath(username), userInfo);
                     setValue(loginsPath(username), userLogin);
-                    setUserLocation(username, "LOCATION");
+                    setUserLocation(username, new LatLng(0.0, 0.0));
                 }
                 if (doer != null) doer.doFromResult(!result);
             }
@@ -67,7 +68,7 @@ public class DB {
      * @param username Username of user to set location of
      * @param location Location to set for given user
      */
-    public static void setUserLocation(final String username, final Object location) {
+    public static void setUserLocation(final String username, final LatLng location) {
         doIfHasPath(usersPath(username), new Doer<Boolean>() {
             @Override
             public void doFromResult(Boolean result) {
@@ -157,7 +158,7 @@ public class DB {
      * @param username Username of user to get location data of
      * @param doer     Doer to execute with retrieved location data
      */
-    public static void getUserLocation(final String username, final Doer<Object> doer) {
+    public static void getUserLocation(final String username, final Doer<LatLng> doer) {
         doIfHasPath(usersPath(username), new Doer<Boolean>() {
             @Override
             public void doFromResult(Boolean result) {
@@ -165,7 +166,7 @@ public class DB {
                     doWithValue(usersPath(username), Object.class, new Doer<Object>() {
                         @Override
                         public void doFromResult(Object result) {
-                            doer.doFromResult(result);
+                            doer.doFromResult((LatLng) result);
                         }
                     });
             }
