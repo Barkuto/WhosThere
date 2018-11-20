@@ -24,6 +24,9 @@ public class LoginActivity extends AppCompatActivity {
     private View mProgressView;
     private View mLoginFormView;
 
+    // https://emailregex.com/
+    private Pattern emailRegex = Pattern.compile("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,23 +82,31 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void register() {
-        DB.addUser(parseUsername(), parseEmail(), parsePassword(), new Doer<Boolean>() {
-            @Override
-            public void doFromResult(Boolean result) {
-                if (result) {
-                    Toast.makeText(getApplicationContext(), "User Added", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(getApplicationContext(), "User Already Exists", Toast.LENGTH_LONG).show();
+        try {
+            String email = parseEmail();
+            String username = parseUsername();
+            String password = parsePassword();
+
+            DB.addUser(username, email, password, new Doer<Boolean>() {
+                @Override
+                public void doFromResult(Boolean result) {
+                    if (result) {
+                        Toast.makeText(getApplicationContext(), "User Added", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "User Already Exists", Toast.LENGTH_LONG).show();
+                    }
                 }
-            }
-        });
+            });
+        } catch (InvalidEmailFormatException e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private String parseEmail() throws InvalidEmailFormatException {
         String text = mEmailView.getText().toString();
-        Pattern p = Pattern.compile("[a-zA-Z0-9.]+@[a-zA-Z0-9.]+.[a-zA-Z0-9.]+");
-        if (!text.contains("@")) throw new InvalidEmailFormatException("Email must contain @");
-        return mEmailView.getText().toString();
+        if (!emailRegex.matcher(text).matches())
+            throw new InvalidEmailFormatException("Invalid email format");
+        return text;
     }
 
     private String parseUsername() throws InvalidEmailFormatException {

@@ -85,13 +85,12 @@ public class DB {
      * @param doer Doer to execute once checked
      */
     public static void doIfHasPath(String path, final Doer<Boolean> doer) {
-        HasValueEventListener hvel = new HasValueEventListener(sanitizePath(path), new Doer<Boolean>() {
+        dbr.addListenerForSingleValueEvent(new HasValueEventListener(sanitizePath(path), new Doer<Boolean>() {
             @Override
             public void doFromResult(Boolean result) {
                 if (doer != null) doer.doFromResult(result);
             }
-        });
-        dbr.addListenerForSingleValueEvent(hvel);
+        }));
     }
 
     /**
@@ -102,13 +101,12 @@ public class DB {
      * @param doer      Doer to execute once data is retrieved
      */
     public static void doWithValue(String path, Class classType, final Doer<Object> doer) {
-        GetValueEventListener<Object> gvel = new GetValueEventListener<>(sanitizePath(path), classType, new Doer<Object>() {
+        dbr.addListenerForSingleValueEvent(new GetValueEventListener<>(sanitizePath(path), classType, new Doer<Object>() {
             @Override
             public void doFromResult(Object result) {
                 doer.doFromResult(result);
             }
-        });
-        dbr.addListenerForSingleValueEvent(gvel);
+        }));
     }
 
     /**
