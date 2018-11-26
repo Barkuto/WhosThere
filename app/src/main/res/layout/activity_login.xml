@@ -92,15 +92,40 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                <Button
-                    android:id="@+id/test_button"
-                    style="?android:textAppearanceSmall"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:paddingTop="20dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="tempButton"
-                    android:textStyle="bold"
-                    android:layout_gravity="center"/>
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/map_button"
+                        style="?android:textAppearanceSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="map"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/friends_button"
+                        style="?android:textAppearanceSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="friends"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/settings_button"
+                        style="?android:textAppearanceSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="settings"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
             </LinearLayout>
         </LinearLayout>
