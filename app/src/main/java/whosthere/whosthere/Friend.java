@@ -29,6 +29,10 @@ public class Friend {
         return lastName;
     }
 
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+
     public String getUserName() {
         return userName;
     }

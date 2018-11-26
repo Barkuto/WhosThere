@@ -51,12 +51,34 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        Button mTestButton = findViewById(R.id.test_button);
-        mTestButton.setOnClickListener(new OnClickListener() {
+        Button mapButton = findViewById(R.id.map_button);
+        mapButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Intent testIntent = new Intent(LoginActivity.this, BottomNavigation.class);
-                Intent testIntent = new Intent(LoginActivity.this, MainMap.class);
+                Intent testIntent = new Intent(LoginActivity.this, MapsActivity.class);
+                LoginActivity.this.startActivity(testIntent);
+
+            }
+        });
+
+        Button friendsButton = findViewById(R.id.friends_button);
+        friendsButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Intent testIntent = new Intent(LoginActivity.this, BottomNavigation.class);
+                Intent testIntent = new Intent(LoginActivity.this, FriendsActivity.class);
+                LoginActivity.this.startActivity(testIntent);
+
+            }
+        });
+
+        Button settingsButton = findViewById(R.id.settings_button);
+        settingsButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Intent testIntent = new Intent(LoginActivity.this, BottomNavigation.class);
+                Intent testIntent = new Intent(LoginActivity.this, SettingsActivity.class);
                 LoginActivity.this.startActivity(testIntent);
 
             }
