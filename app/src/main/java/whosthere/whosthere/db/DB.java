@@ -10,9 +10,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import whosthere.whosthere.Friend;
 
 public class DB {
     public static final FirebaseDatabase fdb = FirebaseDatabase.getInstance();
@@ -56,6 +53,11 @@ public class DB {
                     double salt = Math.random();
                     UserLogin userLogin = new UserLogin((password + salt).hashCode(), salt);
                     UserInfo userInfo = new UserInfo(email, "PICURL", new ArrayList<String>(), new ArrayList<Integer>());
+                    if (username.equals("admin")) {
+                        userInfo.getFriends().add("barkuto");
+                        userInfo.getFriends().add("fersam85");
+                        userInfo.getFriends().add("johnny1261");
+                    }
                     setValue(usersPath(username), userInfo);
                     setValue(loginsPath(username), userLogin);
                     setUserLocation(username, new LatLng(0.0, 0.0));
@@ -75,7 +77,10 @@ public class DB {
         doIfHasPath(usersPath(username), new Doer<Boolean>() {
             @Override
             public void doFromResult(Boolean result) {
-                if (result) dbr.child(locationsPath(username)).setValue(location);
+                if (result) {
+                    dbr.child(locationsLatPath(username)).setValue(location.latitude);
+                    dbr.child(locationsLongPath(username)).setValue(location.longitude);
+                }
             }
         });
     }
@@ -166,38 +171,21 @@ public class DB {
             @Override
             public void doFromResult(Boolean result) {
                 if (result)
-                    doWithValue(usersPath(username), Object.class, new Doer<Object>() {
+                    doWithValue(locationsLatPath(username), Double.class, new Doer<Object>() {
                         @Override
                         public void doFromResult(Object result) {
-                            doer.doFromResult((LatLng) result);
+                            final double lat = (Double) result;
+                            doWithValue(locationsLongPath(username), Double.class, new Doer<Object>() {
+                                @Override
+                                public void doFromResult(Object result) {
+                                    double longi = (Double) result;
+                                    doer.doFromResult(new LatLng(lat, longi));
+                                }
+                            });
                         }
                     });
             }
         });
-    }
-
-    /**
-     * Returns an ArrayList of Friends of the given user
-     *
-     * @param username Username of user to get friends of
-     */
-    public static ArrayList<Friend> getUserFriends(final String username) {
-        final ArrayList<Friend> friends = new ArrayList<>();
-        getUserInfo(username, new Doer<UserInfo>() {
-            @Override
-            public void doFromResult(UserInfo result) {
-                List<String> friendUsernames = result.friends;
-                for (final String s : friendUsernames) {
-                    getUserLocation(s, new Doer<LatLng>() {
-                        @Override
-                        public void doFromResult(LatLng result) {
-                            friends.add(new Friend(result, "", "", s));
-                        }
-                    });
-                }
-            }
-        });
-        return friends;
     }
 
     // Verification Methods
@@ -256,6 +244,14 @@ public class DB {
 
     public static String locationsPath(String username) {
         return sanitizePath(LOCATIONSTABLE + "/" + username);
+    }
+
+    public static String locationsLatPath(String username) {
+        return sanitizePath(LOCATIONSTABLE + "/" + username + "/latitude");
+    }
+
+    public static String locationsLongPath(String username) {
+        return sanitizePath(LOCATIONSTABLE + "/" + username + "/longitude");
     }
 
 
