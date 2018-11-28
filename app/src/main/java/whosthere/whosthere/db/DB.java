@@ -10,6 +10,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import whosthere.whosthere.Friend;
 
 public class DB {
     public static final FirebaseDatabase fdb = FirebaseDatabase.getInstance();
@@ -184,6 +187,29 @@ public class DB {
                             });
                         }
                     });
+            }
+        });
+    }
+
+    /**
+     * Executes given doer on each friend of the given user
+     *
+     * @param username Username of user to get friends of
+     * @param doer     Doer to execute PER friend of given user
+     */
+    public static void getUserFriends(final String username, final Doer<Friend> doer) {
+        DB.getUserInfo(username, new Doer<UserInfo>() {
+            @Override
+            public void doFromResult(UserInfo result) {
+                List<String> friendsUsernames = result.friends;
+                for (final String s : friendsUsernames) {
+                    DB.getUserLocation(username, new Doer<LatLng>() {
+                        @Override
+                        public void doFromResult(LatLng result) {
+                            doer.doFromResult(new Friend(result, "First", "Last", s));
+                        }
+                    });
+                }
             }
         });
     }
