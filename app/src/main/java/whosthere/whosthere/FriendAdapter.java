@@ -14,6 +14,7 @@ public class FriendAdapter extends ArrayAdapter<Friend> {
 
     public FriendAdapter(Activity context, ArrayList<Friend> words) {
         super(context, 0 , words);
+
     }
 
     @Override

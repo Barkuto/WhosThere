@@ -78,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //Intent testIntent = new Intent(LoginActivity.this, BottomNavigation.class);
-                Intent testIntent = new Intent(LoginActivity.this, SettingsActivity.class);
+                Intent testIntent = new Intent(LoginActivity.this, BottomNavigation.class);
                 LoginActivity.this.startActivity(testIntent);
 
             }

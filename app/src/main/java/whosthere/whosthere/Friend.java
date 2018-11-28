@@ -2,23 +2,31 @@ package whosthere.whosthere;
 
 import com.google.android.gms.maps.model.LatLng;
 
-public class Friend {
+import java.io.Serializable;
 
-    private LatLng location;
+public class Friend implements Serializable{
+
+    private static final long serialVersionUID = 1L;
+
+    //private LatLng location;
+    private double lat;
+    private double lng;
     private String firstName;
     private String lastName;
     private String userName;
     private double distanceAway;
 
     public Friend(LatLng location, String firstName, String lastName, String userName) {
-        this.location = location;
+        //this.location = location;
+        this.lat = location.latitude;
+        this.lng = location.longitude;
         this.firstName = firstName;
         this.lastName = lastName;
         this.userName = userName;
     }
 
     public LatLng getLocation() {
-        return location;
+        return new LatLng(lat, lng);
     }
 
     public String getFirstName() {
@@ -38,7 +46,8 @@ public class Friend {
     }
 
     public void setLocation(LatLng location) {
-        this.location = location;
+        this.lat = location.latitude;
+        this.lng = location.longitude;
     }
 
     public double getDistanceAway() {
