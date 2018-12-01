@@ -1,54 +1,87 @@
 package whosthere.whosthere;
 
+import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.FragmentManager;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class FriendsFragment extends ListFragment {
 
-    public ArrayList<Friend> friendList = new ArrayList<>();
+public class FriendsFragment extends Fragment {
 
+    private ArrayList<Friend> mFriendsList = new ArrayList<>();
+    private FriendAdapter mAdapter;
+    private ListView mListView;
+    private LayoutInflater mLayoutInflater;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /*//
-        // setContentView(R.layout.activity_friends);
+        //friendsList = (ArrayList)getIntent().getParcelableArrayListExtra("mFriendList");
+        this.mFriendsList = ((BottomNavigation)getActivity()).getFriendList();
+        this.mLayoutInflater = LayoutInflater.from(getContext());
 
-        //friendList = (ArrayList)getIntent().getParcelableArrayListExtra("mFriendList");
-        friendList = ((BottomNavigation)getActivity()).getmFriendList();
+        mAdapter = new FriendAdapter(getActivity(), mFriendsList);
 
 
-        FriendAdapter adapter = new FriendAdapter(getActivity(), friendList);
+    }
 
-        setListAdapter(adapter);
-
-        //ListView listView = findViewById(R.id.list);
-        //listView.setAdapter(adapter);
-
-*//*        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View v =  inflater.inflate(R.layout.fragment_friends, container, false);
+        this.mListView = v.findViewById(R.id.list);
+        this.mListView.setAdapter(mAdapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Friend friend = friendList.get(position);
+                Friend friend = mFriendsList.get(position);
                 // Link to map ... somehow
 
             }
-        });*//*
+        });
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        EditText searchView = (EditText)mLayoutInflater.inflate(R.layout.search_view, null);
+
+        searchView.addTextChangedListener(new TextWatcher() {
+
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Call back the Adapter with current character to Filter
+                mAdapter.getFilter().filter(s.toString());
             }
-        });*/
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count,int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        mListView.addHeaderView(searchView);
+        return v;
     }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+    }
+
 }

@@ -4,18 +4,26 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
-public class BottomNavigation extends AppCompatActivity {
+public class BottomNavigation extends AppCompatActivity{
 
     private TextView mTextMessage;
     private ArrayList<Friend> mFriendList;
+    private FirebaseAuth mAuth;
+    private FriendsFragment mFriendsFragment;
+    private FragmentManager mFragmentManager;
+
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -29,12 +37,26 @@ public class BottomNavigation extends AppCompatActivity {
                     return true;
                 case R.id.navigation_dashboard:
                     mTextMessage.setText(R.string.title_dashboard);
+                    mAuth.signOut();
                     return true;
                 case R.id.navigation_notifications:
                     mTextMessage.setText(R.string.title_notifications);
-                    Intent gotoFriendsList = new Intent(BottomNavigation.this, FriendsActivity.class);
-                    gotoFriendsList.putExtra("mFriendList", mFriendList);
-                    getApplicationContext().startActivity(gotoFriendsList);
+                    //Intent gotoFriendsList = new Intent(BottomNavigation.this, FriendsActivity.class);
+                    //gotoFriendsList.putExtra("mFriendList", mFriendList);
+                    //getApplicationContext().startActivity(gotoFriendsList);
+                    Log.i("test", "Friend List Button Clicked!");
+                    // Start a new FragmentTransaction
+                    android.support.v4.app.FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+
+                    mFriendsFragment = new FriendsFragment();
+
+                    // Add the TitleFragment to the layout
+                    fragmentTransaction.replace(R.id.friends_frag_cont,
+                            mFriendsFragment);
+                    fragmentTransaction.addToBackStack(null);
+                    // Commit the FragmentTransaction
+                    fragmentTransaction.commit();
+
                     return true;
             }
             return false;
@@ -46,9 +68,11 @@ public class BottomNavigation extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bottom_navigation);
 
+        this.mAuth = FirebaseAuth.getInstance();
         mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        this.mFragmentManager = getSupportFragmentManager();
 
         mFriendList = new ArrayList<>();
         mFriendList.add(new Friend(new LatLng(38.989886, -76.936306), "Bruce", "Wayne", "Batman"));
@@ -60,14 +84,18 @@ public class BottomNavigation extends AppCompatActivity {
         mFriendList.add(new Friend(new LatLng(39.286132, -76.608427),"Alfred", "Pennyworth", "The Butler"));
         mFriendList.add(new Friend(new LatLng(40.772290, -73.980208), "Damian", "Wayne", "Batman"));
         mFriendList.add(new Friend(new LatLng(37.421716, -122.084344),"Selina", "Kyle", "Catwoman"));
-        mFriendList.add(new Friend(new LatLng(42.946947, -122.097894),"Katherine", "Kane", "Batwoman"));
+        mFriendList.add(new Friend(null,"Katherine", "Kane", "Batwoman", false));
+
     }
 
-    public void setmFriendList(ArrayList<Friend> mFriendList) {
+    public void setFriendList(ArrayList<Friend> mFriendList) {
         this.mFriendList = mFriendList;
     }
 
-    public ArrayList<Friend> getmFriendList() {
+    public ArrayList<Friend> getFriendList() {
         return mFriendList;
     }
+
+
+
 }

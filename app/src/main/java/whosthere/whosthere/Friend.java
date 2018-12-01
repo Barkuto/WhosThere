@@ -1,5 +1,7 @@
 package whosthere.whosthere;
 
+import android.graphics.Bitmap;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.Serializable;
@@ -15,6 +17,8 @@ public class Friend implements Serializable{
     private String lastName;
     private String userName;
     private double distanceAway;
+    private boolean isMyFriend;
+    private Bitmap profilePic;
 
     public Friend(LatLng location, String firstName, String lastName, String userName) {
         //this.location = location;
@@ -23,6 +27,17 @@ public class Friend implements Serializable{
         this.firstName = firstName;
         this.lastName = lastName;
         this.userName = userName;
+        this.isMyFriend = true;
+    }
+    public Friend(LatLng location, String firstName, String lastName, String userName, boolean isMyFriend) {
+        if(location != null){
+            this.lat = location.latitude;
+            this.lng = location.longitude;
+        }
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.userName = userName;
+        this.isMyFriend = isMyFriend;
     }
 
     public LatLng getLocation() {
@@ -56,5 +71,21 @@ public class Friend implements Serializable{
 
     public void setDistanceAway(double distanceAway) {
         this.distanceAway = distanceAway;
+    }
+
+    public boolean isMyFriend() {
+        return isMyFriend;
+    }
+
+    public void setMyFriend(boolean myFriend) {
+        isMyFriend = myFriend;
+    }
+
+    public Bitmap getProfilePic() {
+        return profilePic;
+    }
+
+    public void setProfilePic(Bitmap profilePic) {
+        this.profilePic = profilePic;
     }
 }
