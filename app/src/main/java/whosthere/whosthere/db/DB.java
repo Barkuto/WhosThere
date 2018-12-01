@@ -68,6 +68,7 @@ public class DB {
                 if (doer != null) doer.doFromResult(!result);
             }
         });
+
     }
 
     /**
