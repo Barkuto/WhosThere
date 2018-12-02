@@ -90,6 +90,35 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+    <string name="addAFriend">Button</string>
+
+
+    <!-- FAHO -->
+    <string name="channel_name">NotificationChannel</string>
+    <string name="channel_description">Notification channel for this app</string>
+    <string name="intent_received_string">Got The Intent</string>
+    <string name="separator_string">temp_separator</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <!--<string name="hello_blank_fragment">Hello blank fragment</string>-->
+    <string name="whatgoeshere">temp</string>
+    <string name="user_email">Email...</string>
+    <string name="user_password">Password...</string>
+    <string name="user_cpassword">Confirm password...</string>
+    <string name="user_fname">Full name...</string>
+    <string name="user_uname">Username</string>
+    <string name="loading">Loading…</string>
+    <string name="register">Register</string>
+    <string name="back">Back</string>
+    <string name="no_account_msg">Don\'t have an account?</string>
+    <string name="welcome">Welcome!</string>
+    <string name="login">Login</string>
+    <string name="register_error">Error: A user with that email already exists.</string>
+    <string name="register_title">Enter your information:</string>
+    <string name="plz_login">Login:</string>
+    <string name="login_error_msg">Error: User/Password entered does not exist.</string>
+
+
 
 
     <!-- Drawer -->

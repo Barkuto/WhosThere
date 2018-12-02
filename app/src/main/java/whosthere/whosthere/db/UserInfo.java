@@ -34,7 +34,7 @@ public class UserInfo implements Serializable {
                     DB.getUserLocation(username, new Doer<LatLng>() {
                         @Override
                         public void doFromResult(LatLng result) {
-                            friendList.add(new Friend(result, email, email, email));
+                            //friendList.add(new Friend(result, email, email, email));
                         }
                     });
                 }

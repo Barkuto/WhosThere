@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RegisterFragment">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="217dp">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="30dp"
+            android:contentDescription="@string/whatgoeshere"
+            android:src="@drawable/logo" />
+
+        <TextView
+            android:id="@+id/enter_information"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="11dp"
+            android:text="@string/register_title"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="566dp">
+
+        <EditText
+            android:id="@+id/user_fname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/user_uname"
+            android:layout_centerHorizontal="true"
+            android:ems="10"
+            android:hint="@string/user_fname"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/user_uname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/user_email"
+            android:layout_centerHorizontal="true"
+            android:ems="10"
+            android:hint="@string/user_uname"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/user_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/user_password"
+            android:layout_centerHorizontal="true"
+            android:ems="10"
+            android:hint="@string/user_email"
+            android:inputType="textEmailAddress" />
+
+        <EditText
+            android:id="@+id/user_cpassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="115dp"
+            android:ems="10"
+            android:hint="@string/user_cpassword"
+            android:inputType="textPassword" />
+
+        <EditText
+            android:id="@+id/user_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/user_cpassword"
+            android:layout_centerHorizontal="true"
+            android:ems="10"
+            android:hint="@string/user_password"
+            android:inputType="textPassword" />
+
+        <Button
+            android:id="@+id/register_button"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignTop="@+id/back_button"
+            android:layout_marginEnd="79dp"
+            android:text="@string/register" />
+
+        <Button
+            android:id="@+id/back_button"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignStart="@+id/user_fname"
+            android:layout_marginBottom="23dp"
+            android:text="@string/back" />
+
+        <TextView
+            android:id="@+id/register_error_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="86dp"
+            android:text="@string/register_error"
+            android:textAllCaps="false"
+            android:textColor="@android:color/holo_red_dark"
+            android:visibility="invisible" />
+
+    </RelativeLayout>
+
+
+</FrameLayout>
