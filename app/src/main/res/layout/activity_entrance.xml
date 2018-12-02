@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/entrance_bg"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".EntranceActivity"
+    android:background="@drawable/animation_list_bg">
+
+<!--    <fragment
+        android:id="@+id/login_fragment"
+        class="whosthere.whosthere.LoginFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <fragment
+        android:id="@+id/register_fragment"
+        class="whosthere.whosthere.RegisterFragment"
+        android:layout_width="0px"
+        android:layout_height="match_parent"/>-->
+
+
+    <FrameLayout
+        android:id="@+id/login_frag_cont"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <FrameLayout
+        android:id="@+id/register_frag_cont"
+        android:layout_width="0dp"
+        android:layout_height="match_parent" />
+
+
+</LinearLayout>

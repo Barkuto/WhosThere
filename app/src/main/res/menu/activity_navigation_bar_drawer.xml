@@ -10,7 +10,7 @@
             android:title="Map" />
 
         <item
-            android:id="@+id/list"
+            android:id="@+id/friends"
             android:icon="@drawable/ic_home_black_24dp"
             android:title="Friends" />
 

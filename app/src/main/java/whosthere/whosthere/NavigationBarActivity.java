@@ -1,10 +1,13 @@
 package whosthere.whosthere;
 
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -16,22 +19,47 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 public class NavigationBarActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    private static final String TAG = "NavigationBarActivity";
 
     private MapsFragment mapsFragment = new MapsFragment();
+    private ArrayList<Friend> mFriendsList;
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore mDatabase;
+    private FirebaseUser mUser;
+
+    public ArrayList<Friend> getmFriendsList() {
+        return mFriendsList;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_bar);
 
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        this.mAuth = FirebaseAuth.getInstance();
+        this.mDatabase = FirebaseFirestore.getInstance();
+        this.mUser = mAuth.getCurrentUser();
+        this.mFriendsList = new ArrayList<>();
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,6 +83,60 @@ public class NavigationBarActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, mapsFragment).commit();
             navigationView.getMenu().getItem(0).setChecked(true);
         }
+
+
+
+        this.mUser = mAuth.getCurrentUser();
+        DocumentReference docRef = mDatabase.collection("users").document(/*mUser.getUid()*/ "fahodayi");
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        NavigationBarActivity.this.getmFriendsList().clear();
+
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                        Map<String, Object> result = document.getData();
+                        Map<String, Object> friendsDB = (Map)result.get("friends");
+                        for (Map.Entry<String,Object> entry : friendsDB.entrySet()){
+                            String friendUID = entry.getKey();
+                            Map<String, Object> friendInfo = (Map)entry.getValue();
+                            final String profilePicURL = "";
+                            Friend f = new Friend(
+                                    new LatLng((double)friendInfo.get("lat"), (double)friendInfo.get("lng")),
+                                    (String)friendInfo.get("full_name"),
+                                    (String)friendInfo.get("user_name"),
+                                    (boolean)friendInfo.get("isFriend"),
+                                    (boolean)friendInfo.get("iRequested"),
+                                    (boolean)friendInfo.get("theyRequested"),
+                                    (boolean)friendInfo.get("isFamily"),
+                                    (boolean)friendInfo.get("isBlocked"),
+                                    (boolean)friendInfo.get("isIncognito"),
+                                    (boolean)friendInfo.get("hasMeBlocked"),
+                                    (Date)friendInfo.get("lastSeen"),
+                                    friendUID,
+                                    /*(String)friendInfo.get("profilePicURL")*/
+                                    null);
+                            NavigationBarActivity.this.getmFriendsList().add(f);
+                        }
+
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
     }
 
     @Override
@@ -101,9 +183,10 @@ public class NavigationBarActivity extends AppCompatActivity
             manager.beginTransaction().replace(R.id.mainLayout, mapsFragment).commit();
 
         } else if (id == R.id.friends) {
-            MapsFragment mapsFragment = new MapsFragment();
+            Log.i("tag", "Clicked on friends option!");
+            FriendsFragment mNewFragment = new FriendsFragment();
             FragmentManager manager = getSupportFragmentManager();
-            manager.beginTransaction().replace(R.id.mainLayout, mapsFragment).commit();
+            manager.beginTransaction().replace(R.id.mainLayout, mNewFragment).addToBackStack(null).commit();
 
         } else if (id == R.id.profile) {
             MapsFragment mapsFragment = new MapsFragment();
