@@ -4,28 +4,23 @@ package whosthere.whosthere;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
-import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceActivity;
 import android.widget.Toast;
-import android.preference.SwitchPreference;
+
 
 
 public class MyPreferencesActivity extends PreferenceActivity {
-    private SwitchPreference swP;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         getFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragment()).commit();
-
     }
 
 
     public static class PrefsFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
-        private static final String switchkey = "notifications_location";
+
         int setting[] = {1,1,1};
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -36,7 +31,6 @@ public class MyPreferencesActivity extends PreferenceActivity {
 
             // set texts correctly
             onSharedPreferenceChanged(null, "");
-
         }
 
         @Override
@@ -53,9 +47,16 @@ public class MyPreferencesActivity extends PreferenceActivity {
             getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
         }
 
+
+
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             switch(key){
+
+
+                //this option is used to determine a user wanna be interrupt by botification or not
+                //if it is checked then we allow app send notification
+                //else do not send notification or alarm
                 case "distribution_set":
                     boolean check = sharedPreferences.getBoolean(key,true);
                     if(check == false){
@@ -67,17 +68,33 @@ public class MyPreferencesActivity extends PreferenceActivity {
                     }
                     break;
 
+
+                    //when friend get close enough and then send notification
+                //0-1 mile----1
+                //1-5 miles----1
+                // 5-10 miles----1
                 case "distance_key":
                     String distance = sharedPreferences.getString(key,"");
                     setting[1]=Integer.parseInt(distance);
                     Toast.makeText(getActivity(), "distance_key: "+setting[1], Toast.LENGTH_LONG).show();
                     break;
 
+
+
+                    //used to determine the frequency that our app refresh the user location data and use for the app
+                //0-1 mins----1
+                //2-5 mins----5
+                //6-10 mins----10
+                //11-30 mins----30
+                //31-60 mins----60
                 case "frequency_choice":
+
                     String freq = sharedPreferences.getString(key,"");
                     setting[2]=Integer.parseInt(freq);
                     Toast.makeText(getActivity(), "frequency_choice: "+setting[2], Toast.LENGTH_LONG).show();
                     break;
+
+
             }
         }
 
