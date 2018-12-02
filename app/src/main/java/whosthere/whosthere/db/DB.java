@@ -68,6 +68,7 @@ public class DB {
                 if (doer != null) doer.doFromResult(!result);
             }
         });
+
     }
 
     /**
@@ -206,7 +207,7 @@ public class DB {
                     DB.getUserLocation(username, new Doer<LatLng>() {
                         @Override
                         public void doFromResult(LatLng result) {
-                            doer.doFromResult(new Friend(result, "First", "Last", s));
+                            //doer.doFromResult(new Friend(result, "First", "Last", s));
                         }
                     });
                 }

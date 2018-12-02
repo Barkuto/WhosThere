@@ -2,12 +2,15 @@ package whosthere.whosthere;
 
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -20,6 +23,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -27,7 +31,7 @@ import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private static final String TAG = MapsActivity.class.getName();
@@ -36,21 +40,76 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final float DEFAULT_ZOOM = 15f;
 
     private Location myLocation;
+    private DrawerLayout drawer;
     private FusedLocationProviderClient mFusedLocationProviderClient;
 
-
-    private ArrayList<Friend> friendList;
+    private static ArrayList<Friend> friendList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        drawer = findViewById(R.id.drawer_layout);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
+                R.string.open, R.string.close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         getLocationPermission();
+
+        /*
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+        database.child("users").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    Profile profile = new Profile();
+                    profile.setEmail(ds.child("johnnyn1261").getValue(Profile.class).getEmail());
+                    profile.setFirstName(ds.child("johnnyn1261").getValue(Profile.class).getFirstName());
+                    profile.setFriends(ds.child("johnnyn1261").getValue(Profile.class).getFriends());
+                    profile.setLastName(ds.child("johnnyn1261").getValue(Profile.class).getLastName());
+                    profile.setLatitude(ds.child("johnnyn1261").getValue(Profile.class).getLatitude());
+                    profile.setLongitude(ds.child("johnnyn1261").getValue(Profile.class).getLongitude());
+                    profile.setPic(ds.child("johnnyn1261").getValue(Profile.class).getPic());
+                }
+
+
+                mMap.addMarker(new MarkerOptions().position(new Location()).title(friend.getUserName()));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        Intent intentUserInfo = getIntent();
+        myProfile = (UserInfo)intentUserInfo.getSerializableExtra("profile");
+
+
+        myProfile = (UserInfo)getIntent().getSerializableExtra("profile");
+
+
+        Button button = findViewById(R.id.testButton);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(MapsActivity.this, myProfile.friendList.size() + "!!", Toast.LENGTH_SHORT).show();
+                //mapFriends(friendList);
+            }
+        });*/
     }
 
 
@@ -67,6 +126,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        //mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setCompassEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mMap.getUiSettings().setMapToolbarEnabled(false);
+
+        try {
+            // Customise the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            //boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json_retro));
+            boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json_aubergine));
+
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.");
+            }
+        } catch (Resources.NotFoundException e) {
+            Log.e(TAG, "Can't find style. Error: ", e);
+        }
 
         if (mMap != null) {
             mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
@@ -164,7 +240,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-
     private void getLocationPermission() {
         /*
          * Request location permission, so that we can get the location of the
@@ -199,7 +274,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         updateLocationUI();
     }
 
-
     private void updateLocationUI() {
         if (mMap == null) {
             return;
@@ -219,14 +293,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-
-
-
-
     private void generateFriendsList() {
-        friendList = new ArrayList<>();
+        /*friendList = new ArrayList<>();*/
 
-        friendList.add(new Friend(new LatLng(38.989886, -76.936306), "Bruce", "Wayne", "Batman"));
+       /* friendList.add(new Friend(new LatLng(38.989886, -76.936306), "Bruce", "Wayne", "Batman"));
         friendList.add(new Friend(new LatLng(38.987260, -76.942088),"Dick", "Grayson", "Nightwing"));
         friendList.add(new Friend(new LatLng(38.987923, -76.944648),"Barbara", "Gordan", "Batgirl"));
         friendList.add(new Friend(new LatLng(38.897392, -77.037002),"Tim", "Drake", "Red Robin"));
@@ -235,7 +305,42 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         friendList.add(new Friend(new LatLng(39.286132, -76.608427),"Alfred", "Pennyworth", "The Butler"));
         friendList.add(new Friend(new LatLng(40.772290, -73.980208), "Damian", "Wayne", "Batman"));
         friendList.add(new Friend(new LatLng(37.421716, -122.084344),"Selina", "Kyle", "Catwoman"));
-        friendList.add(new Friend(new LatLng(42.946947, -122.097894),"Katherine", "Kane", "Batwoman"));
+        friendList.add(new Friend(new LatLng(42.946947, -122.097894),"Katherine", "Kane", "Batwoman"));*/
+        /*
+
+        DB.getUserFriends("admin", new Doer<Friend>() {
+            @Override
+            public void doFromResult(Friend result) {
+                if (!friendList.contains(result)) {
+                    friendList.add(result);
+
+                    Toast.makeText(MapsActivity.this, "FriendList size = " + friendList.size() + "\n" +
+                            result.getUserName(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+*/
+
+
+
+        /*DB.getUserFriends("admin", new Doer<Friend>() {
+            ArrayList<Friend> friends = new ArrayList<>();
+
+            @Override
+            public void doFromResult(Friend result) {
+                friends.add(new Friend(result));
+                Toast.makeText(MapsActivity.this, result.getLocation() + "", Toast.LENGTH_SHORT).show();
+                copy(friends);
+            }
+
+            public void copy(ArrayList<Friend> friends) {
+                friendList.addAll(friends);
+            }
+        });
+
+        Toast.makeText(this, "FriendsList: size = " + friendList.size(), Toast.LENGTH_LONG).show();
+*/
+        //mMap.addMarker(new MarkerOptions().position(friendList.get(0).getLocation()).title(friendList.get(0).getUserName()));
 
         mapFriends(friendList);
     }
@@ -250,8 +355,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.addMarker(new MarkerOptions().position(location).title(friend.getUserName()));
         }
     }
-
-
-
-
 }

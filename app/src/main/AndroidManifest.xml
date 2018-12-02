@@ -24,9 +24,6 @@
 
         </activity>
         <activity android:name=".Dashboard" />
-        <activity
-            android:name=".BottomNavigation"
-            android:label="@string/title_activity_bottom_navigation" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -40,9 +37,6 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MainMap"
-            android:label="@string/title_activity_main_map" />
-        <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
         <activity
@@ -51,6 +45,10 @@
         <activity
             android:name=".FriendsActivity"
             android:label="@string/title_activity_friendlist" />
+        <activity
+            android:name=".NavigationBarActivity"
+            android:label="@string/title_activity_navigation_bar"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".EntranceActivity"
             android:theme="@style/AppTheme.NoActionBar">
 

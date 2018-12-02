@@ -51,36 +51,13 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        Button mapButton = findViewById(R.id.map_button);
-        mapButton.setOnClickListener(new OnClickListener() {
+        Button openDrawer = findViewById(R.id.temp_button);
+        openDrawer.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Intent testIntent = new Intent(LoginActivity.this, BottomNavigation.class);
-                Intent testIntent = new Intent(LoginActivity.this, MapsActivity.class);
-                LoginActivity.this.startActivity(testIntent);
-
-            }
-        });
-
-        Button friendsButton = findViewById(R.id.friends_button);
-        friendsButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Intent testIntent = new Intent(LoginActivity.this, BottomNavigation.class);
-                Intent testIntent = new Intent(LoginActivity.this, FriendsActivity.class);
-                LoginActivity.this.startActivity(testIntent);
-
-            }
-        });
-
-        Button settingsButton = findViewById(R.id.settings_button);
-        settingsButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //Intent testIntent = new Intent(LoginActivity.this, BottomNavigation.class);
-                Intent testIntent = new Intent(LoginActivity.this, BottomNavigation.class);
-                LoginActivity.this.startActivity(testIntent);
-
+                Intent intent = new Intent(LoginActivity.this, NavigationBarActivity.class);
+                LoginActivity.this.startActivity(intent);
             }
         });
 
@@ -93,6 +70,20 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void doFromResult(Boolean result) {
                 Toast.makeText(getApplicationContext(), result ? "Logged in" : "Invalid Credentials", Toast.LENGTH_LONG).show();
+
+                if (result) {
+                    DB.getUserInfo(mEmailView.getText().toString(), new Doer<UserInfo>() {
+                        @Override
+                        public void doFromResult(UserInfo result) {
+                            Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
+                            intent.putExtra("profile", result);
+                            LoginActivity.this.startActivity(intent);
+                        }
+                    });
+                }
+
+
+
                 DB.getUserInfo(mEmailView.getText().toString(), new Doer<UserInfo>() {
                     @Override
                     public void doFromResult(UserInfo result) {

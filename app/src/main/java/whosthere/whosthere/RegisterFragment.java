@@ -232,9 +232,9 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
                             //DocumentReference alovelaceDocumentRef = mDatabase.collection("users").document("alovelace");
                             Map<String, Object> newUser = new HashMap<>();
                             newUser.put("full_name", mFirstName.getText().toString());
-                            //newUser.put("user_name", mUserName.getText().toString());
+                            newUser.put("user_name", mUserName.getText().toString());
 
-                            mDatabase.collection("users").document(mUserName.getText().toString())
+                            mDatabase.collection("users").document(mAuth.getUid())
                                     .set(newUser)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
@@ -269,7 +269,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
         hideProgressDialog();
         if (user != null) {
             Log.i(TAG, "FAHO REGISTER SUCCESSFUL!!!");
-            Intent gotoMain = new Intent(getActivity(), BottomNavigation.class);
+            Intent gotoMain = new Intent(getActivity(), NavigationBarActivity.class);
             gotoMain.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             getActivity().startActivity(gotoMain);
         } else {

@@ -1,6 +1,7 @@
 package whosthere.whosthere;
 
 import android.app.Activity;
+import android.graphics.BitmapFactory;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -106,7 +107,18 @@ public class FriendAdapter extends ArrayAdapter<Friend>  implements Filterable{
 
         holder.friendName.setText(mDisplayedValues.get(position).getFullName());
         holder.username.setText("@"+mDisplayedValues.get(position).getUserName());
-        holder.profilepic.setImageBitmap(mDisplayedValues.get(position).getProfilePic());
+
+        //holder.profilepic.setImageBitmap(mDisplayedValues.get(position).getProfilePic());
+
+        if(mDisplayedValues.get(position).getProfilePic() == null) {
+            DownloadProfilePicTask pdt = new DownloadProfilePicTask(mDisplayedValues.get(position), holder.profilepic);
+/*            while (mDisplayedValues.get(position).getProfilePicURL() == null ) {
+
+            }*/
+            pdt.execute(mDisplayedValues.get(position)); //is this correct?
+        } else {
+            holder.profilepic.setImageBitmap(mDisplayedValues.get(position).getProfilePic());
+        }
         holder.distance.setText(new Double(mDisplayedValues.get(position).getDistanceAway()).toString());
 
         if(!mDisplayedValues.get(position).isMyFriend()){
@@ -178,8 +190,8 @@ public class FriendAdapter extends ArrayAdapter<Friend>  implements Filterable{
                                 || un.toLowerCase().startsWith(constraint.toString())) {
 
                             filteredArrListFriends.add(new Friend(mOriginalValues.get(i).getLocation(),
-                                    mOriginalValues.get(i).getFirstName(),
-                                    mOriginalValues.get(i).getLastName(),
+                                    mOriginalValues.get(i).getFullName(),
+                                    //mOriginalValues.get(i).getLastName(),
                                     mOriginalValues.get(i).getUserName()));
                         }
                     }

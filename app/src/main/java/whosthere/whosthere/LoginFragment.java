@@ -138,7 +138,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
         hideProgressDialog();
         if (user != null) {
             Log.i(TAG, "FAHO LOGIN SUCCESSFUL!!!");
-            Intent gotoMain = new Intent(getActivity(), BottomNavigation.class);
+            Intent gotoMain = new Intent(getActivity(), NavigationBarActivity.class);
             gotoMain.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             getActivity().startActivity(gotoMain);
         } else if(!mFirstLogin) {

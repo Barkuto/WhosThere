@@ -19,7 +19,7 @@ import java.util.ArrayList;
 
 public class FriendsFragment extends Fragment {
 
-    private ArrayList<Friend> mFriendsList = new ArrayList<>();
+    private ArrayList<Friend> mFriendsList;
     private FriendAdapter mAdapter;
     private ListView mListView;
     private LayoutInflater mLayoutInflater;
@@ -27,7 +27,7 @@ public class FriendsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //friendsList = (ArrayList)getIntent().getParcelableArrayListExtra("mFriendList");
-        this.mFriendsList = ((BottomNavigation)getActivity()).getFriendList();
+        this.mFriendsList = ((NavigationBarActivity)getActivity()).getmFriendsList();
         this.mLayoutInflater = LayoutInflater.from(getContext());
 
         mAdapter = new FriendAdapter(getActivity(), mFriendsList);

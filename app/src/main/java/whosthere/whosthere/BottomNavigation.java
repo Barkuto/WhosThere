@@ -74,7 +74,7 @@ public class BottomNavigation extends AppCompatActivity{
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         this.mFragmentManager = getSupportFragmentManager();
 
-        mFriendList = new ArrayList<>();
+/*        mFriendList = new ArrayList<>();
         mFriendList.add(new Friend(new LatLng(38.989886, -76.936306), "Bruce", "Wayne", "Batman"));
         mFriendList.add(new Friend(new LatLng(38.987260, -76.942088),"Dick", "Grayson", "Nightwing"));
         mFriendList.add(new Friend(new LatLng(38.987923, -76.944648),"Barbara", "Gordan", "Batgirl"));
@@ -84,7 +84,7 @@ public class BottomNavigation extends AppCompatActivity{
         mFriendList.add(new Friend(new LatLng(39.286132, -76.608427),"Alfred", "Pennyworth", "The Butler"));
         mFriendList.add(new Friend(new LatLng(40.772290, -73.980208), "Damian", "Wayne", "Batman"));
         mFriendList.add(new Friend(new LatLng(37.421716, -122.084344),"Selina", "Kyle", "Catwoman"));
-        mFriendList.add(new Friend(null,"Katherine", "Kane", "Batwoman", false));
+        mFriendList.add(new Friend(null,"Katherine", "Kane", "Batwoman", false));*/
 
     }
 
