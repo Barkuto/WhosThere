@@ -12,16 +12,19 @@ import android.widget.Toast;
 import android.preference.PreferenceManager;
 import android.content.Context;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 public class profile_page_arthur extends AppCompatActivity {
     Switch simpleSwitch;
     Button setting, logout;
+    private FirebaseAuth mAuth;
     int share=1;
     protected Context mContext = this;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_page);
-
+        this.mAuth = FirebaseAuth.getInstance();
         simpleSwitch = (Switch) findViewById(R.id.simpleSwitch);
         setting = (Button) findViewById(R.id.setting_button_arthur);
         logout = (Button) findViewById(R.id.log_out);
@@ -58,6 +61,10 @@ public class profile_page_arthur extends AppCompatActivity {
                 SharedPreferences myPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
                 SharedPreferences.Editor editor = myPrefs.edit();
                 editor.clear().commit();
+                mAuth.signOut();
+                Intent gotoLogin = new Intent(profile_page_arthur.this, EntranceActivity.class);
+                gotoLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(gotoLogin);
                 //TODO--already clean the setting data, need to back to log in page
             }
         });
