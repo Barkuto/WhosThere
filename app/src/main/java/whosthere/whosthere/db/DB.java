@@ -10,6 +10,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import whosthere.whosthere.Friend;
 
 public class DB {
     public static final FirebaseDatabase fdb = FirebaseDatabase.getInstance();
@@ -53,11 +56,64 @@ public class DB {
                     double salt = Math.random();
                     UserLogin userLogin = new UserLogin((password + salt).hashCode(), salt);
                     UserInfo userInfo = new UserInfo(email, "PICURL", new ArrayList<String>(), new ArrayList<Integer>());
+                    if (username.equals("admin")) {
+                        userInfo.getFriends().add("barkuto");
+                        userInfo.getFriends().add("fersam85");
+                        userInfo.getFriends().add("johnny1261");
+                    }
                     setValue(usersPath(username), userInfo);
                     setValue(loginsPath(username), userLogin);
                     setUserLocation(username, new LatLng(0.0, 0.0));
                 }
                 if (doer != null) doer.doFromResult(!result);
+            }
+        });
+    }
+
+    /**
+     * Sets UserInfo for given user, note: all data will be overwritten in DB with userInfo data
+     *
+     * @param username Username of user to set UserInfo for
+     * @param userInfo UserInfo data to set data with
+     */
+    public static void setUserInfo(final String username, final UserInfo userInfo) {
+        doIfHasPath(usersPath(username), new Doer<Boolean>() {
+            @Override
+            public void doFromResult(Boolean result) {
+                if (result)
+                    dbr.child(usersPath(username)).setValue(userInfo);
+            }
+        });
+    }
+
+    /**
+     * Sets UserLogin for given user, note: all data will be overwritten in DB with userlogin data
+     *
+     * @param username  Username of user to set UserInfo for
+     * @param userLogin UserInfo data to set data with
+     */
+    public static void setUserLogin(final String username, final UserLogin userLogin) {
+        doIfHasPath(usersPath(username), new Doer<Boolean>() {
+            @Override
+            public void doFromResult(Boolean result) {
+                if (result)
+                    dbr.child(loginsPath(username)).setValue(userLogin);
+            }
+        });
+    }
+
+    /**
+     * Sets settings for given user, note: all data will be overwritten in DB with settings data
+     *
+     * @param username Username of user to set UserInfo for
+     * @param settings UserInfo data to set data with
+     */
+    public static void setUserSettings(final String username, final List<Integer> settings) {
+        doIfHasPath(usersPath(username), new Doer<Boolean>() {
+            @Override
+            public void doFromResult(Boolean result) {
+                if (result)
+                    dbr.child(usersPath(username)).child("settings").setValue(settings);
             }
         });
     }
@@ -72,7 +128,10 @@ public class DB {
         doIfHasPath(usersPath(username), new Doer<Boolean>() {
             @Override
             public void doFromResult(Boolean result) {
-                if (result) dbr.child(locationsPath(username)).setValue(location);
+                if (result) {
+                    dbr.child(locationsLatPath(username)).setValue(location.latitude);
+                    dbr.child(locationsLongPath(username)).setValue(location.longitude);
+                }
             }
         });
     }
@@ -163,12 +222,57 @@ public class DB {
             @Override
             public void doFromResult(Boolean result) {
                 if (result)
-                    doWithValue(usersPath(username), Object.class, new Doer<Object>() {
+                    doWithValue(locationsLatPath(username), Double.class, new Doer<Object>() {
                         @Override
                         public void doFromResult(Object result) {
-                            doer.doFromResult((LatLng) result);
+                            final double lat = (Double) result;
+                            doWithValue(locationsLongPath(username), Double.class, new Doer<Object>() {
+                                @Override
+                                public void doFromResult(Object result) {
+                                    double longi = (Double) result;
+                                    doer.doFromResult(new LatLng(lat, longi));
+                                }
+                            });
                         }
                     });
+            }
+        });
+    }
+
+    /**
+     * Executes given doer on each friend of the given user
+     *
+     * @param username Username of user to get friends of
+     * @param doer     Doer to execute PER friend of given user
+     */
+    public static void getUserFriends(final String username, final Doer<Friend> doer) {
+        DB.getUserInfo(username, new Doer<UserInfo>() {
+            @Override
+            public void doFromResult(UserInfo result) {
+                List<String> friendsUsernames = result.friends;
+                for (final String s : friendsUsernames) {
+                    DB.getUserLocation(username, new Doer<LatLng>() {
+                        @Override
+                        public void doFromResult(LatLng result) {
+                            doer.doFromResult(new Friend(result, "First", "Last", s));
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    /**
+     * Executes given doer on the list of settings of the given user
+     *
+     * @param username Username of user to get settings of
+     * @param doer     Doer to execute on list of settings
+     */
+    public static void getUserSettings(final String username, final Doer<List<Integer>> doer) {
+        DB.getUserInfo(username, new Doer<UserInfo>() {
+            @Override
+            public void doFromResult(UserInfo result) {
+                doer.doFromResult(result.settings);
             }
         });
     }
@@ -229,6 +333,14 @@ public class DB {
 
     public static String locationsPath(String username) {
         return sanitizePath(LOCATIONSTABLE + "/" + username);
+    }
+
+    public static String locationsLatPath(String username) {
+        return sanitizePath(LOCATIONSTABLE + "/" + username + "/latitude");
+    }
+
+    public static String locationsLongPath(String username) {
+        return sanitizePath(LOCATIONSTABLE + "/" + username + "/longitude");
     }
 
 

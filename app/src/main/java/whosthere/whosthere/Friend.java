@@ -17,6 +17,10 @@ public class Friend {
         this.userName = userName;
     }
 
+    public Friend(Friend friend) {
+        this(friend.getLocation(), friend.getFirstName(), friend.getLastName(), friend.getUserName());
+    }
+
     public LatLng getLocation() {
         return location;
     }
@@ -35,10 +39,6 @@ public class Friend {
 
     public String getUserName() {
         return userName;
-    }
-
-    public void setLocation(LatLng location) {
-        this.location = location;
     }
 
     public double getDistanceAway() {
