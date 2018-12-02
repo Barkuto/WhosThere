@@ -1,6 +1,5 @@
 package whosthere.whosthere;
 
-
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Location;
@@ -160,11 +159,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         try {
             if (mLocationPermissionGranted) {
-                Task location = mFusedLocationProviderClient.getLastLocation();
+                final Task location = mFusedLocationProviderClient.getLastLocation();
                 location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
-                        if (task.isSuccessful()) {
+                        if (task.isSuccessful() && location != null) {
                             Log.d(TAG, "Location was found!");
                             Location currentLocation = (Location) task.getResult();
                             myLocation = currentLocation;
@@ -237,13 +236,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-
-
-
-
-
-
-
     private void updateFriendsList() {
 /*        friendList = new ArrayList<>();
 
@@ -278,6 +270,5 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         double lat = myLocation.getLatitude();
         double lng = myLocation.getLongitude();
     }
-
 
 }

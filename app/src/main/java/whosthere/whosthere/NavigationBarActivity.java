@@ -1,12 +1,15 @@
 package whosthere.whosthere;
 
-import android.graphics.BitmapFactory;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -18,7 +21,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -30,7 +32,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 public class NavigationBarActivity extends AppCompatActivity
@@ -84,8 +85,6 @@ public class NavigationBarActivity extends AppCompatActivity
             navigationView.getMenu().getItem(0).setChecked(true);
         }
 
-
-
         this.mUser = mAuth.getCurrentUser();
         DocumentReference docRef = mDatabase.collection("users").document(/*mUser.getUid()*/ "fahodayi");
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -130,13 +129,35 @@ public class NavigationBarActivity extends AppCompatActivity
             }
         });
 
+        startService(new Intent(this, LocationService.class));
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        //Log.e("Location: ", "ENTERED ONRECEIVE");
 
+                        String latitude = intent.getStringExtra(LocationService.EXTRA_LATITUDE);
+                        String longitude = intent.getStringExtra(LocationService.EXTRA_LONGITUDE);
+
+                        if (latitude != null && longitude != null) {
+                            //Log.e("Location: ", "(" + latitude + ", " + longitude + ")");
+                            Log.e(TAG, "onLocationChanged: (" + latitude + ", " + longitude + ")");
+                        }
+                    }
+                }, new IntentFilter(LocationService.ACTION_LOCATION_BROADCAST)
+        );
     }
 
     @Override
     protected void onResume() {
+        startService(new Intent(this, LocationService.class));
         super.onResume();
+    }
 
+    @Override
+    protected void onPause() {
+        startService(new Intent(this, LocationService.class));
+        super.onPause();
     }
 
     @Override
@@ -145,7 +166,7 @@ public class NavigationBarActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            //super.onBackPressed();
         }
     }
 
