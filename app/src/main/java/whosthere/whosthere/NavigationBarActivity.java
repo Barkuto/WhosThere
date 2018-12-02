@@ -1,5 +1,6 @@
 package whosthere.whosthere;
 
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -194,9 +195,12 @@ public class NavigationBarActivity extends AppCompatActivity
             manager.beginTransaction().replace(R.id.mainLayout, mapsFragment).commit();
 
         } else if (id == R.id.settings) {
-            MapsFragment mapsFragment = new MapsFragment();
-            FragmentManager manager = getSupportFragmentManager();
-            manager.beginTransaction().replace(R.id.mainLayout, mapsFragment).commit();
+//            MapsFragment mapsFragment = new MapsFragment();
+//            FragmentManager manager = getSupportFragmentManager();
+//            manager.beginTransaction().replace(R.id.mainLayout, mapsFragment).commit();
+
+            Intent goToProfile = new Intent(NavigationBarActivity.this, profile_page_arthur.class);
+            startActivity(goToProfile);
 
         } else if (id == R.id.about) {
             MapsFragment mapsFragment = new MapsFragment();
