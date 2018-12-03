@@ -1,16 +1,19 @@
 package whosthere.whosthere;
 
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 
 
 public class MyPreferencesActivity extends PreferenceActivity {
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,7 +24,7 @@ public class MyPreferencesActivity extends PreferenceActivity {
 
     public static class PrefsFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
 
-        int setting[] = {1,1,1};
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -51,6 +54,8 @@ public class MyPreferencesActivity extends PreferenceActivity {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            SharedPreferences myPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            SharedPreferences.Editor editor = myPrefs.edit();
             switch(key){
 
 
@@ -60,23 +65,29 @@ public class MyPreferencesActivity extends PreferenceActivity {
                 case "distribution_set":
                     boolean check = sharedPreferences.getBoolean(key,true);
                     if(check == false){
-                        setting[0]=0;
-                        Toast.makeText(getActivity(), "notification_location: "+setting[0], Toast.LENGTH_LONG).show();
+                        editor.putString(key, "1").apply();
                     } else {
-                        setting[0]=1;
-                        Toast.makeText(getActivity(), "notification_location: "+setting[0], Toast.LENGTH_LONG).show();
+                        editor.putString(key,"0").apply();
                     }
                     break;
 
 
                     //when friend get close enough and then send notification
                 //0-1 mile----1
-                //1-5 miles----1
-                // 5-10 miles----1
+                //1-5 miles----5
+                // 5-10 miles----10
                 case "distance_key":
                     String distance = sharedPreferences.getString(key,"");
-                    setting[1]=Integer.parseInt(distance);
-                    Toast.makeText(getActivity(), "distance_key: "+setting[1], Toast.LENGTH_LONG).show();
+                    if(distance==null){
+                        editor.putString(key, "1").apply();
+                        String test = myPrefs.getString(key,"");
+                        Toast.makeText(getActivity(),test,Toast.LENGTH_LONG).show();
+                    } else {
+                        editor.putString(key, distance).apply();
+                        String test = myPrefs.getString(key,"");
+                        Toast.makeText(getActivity(),test,Toast.LENGTH_LONG).show();
+                    }
+
                     break;
 
 
@@ -88,10 +99,16 @@ public class MyPreferencesActivity extends PreferenceActivity {
                 //11-30 mins----30
                 //31-60 mins----60
                 case "frequency_choice":
-
                     String freq = sharedPreferences.getString(key,"");
-                    setting[2]=Integer.parseInt(freq);
-                    Toast.makeText(getActivity(), "frequency_choice: "+setting[2], Toast.LENGTH_LONG).show();
+                    if(freq == null){
+                        editor.putString(key,"1").apply();
+                        String test = myPrefs.getString(key,"");
+                        Toast.makeText(getActivity(),test,Toast.LENGTH_LONG).show();
+                    } else {
+                        editor.putString(key,freq).apply();
+                        String test = myPrefs.getString(key,"");
+                        Toast.makeText(getActivity(),test,Toast.LENGTH_LONG).show();
+                    }
                     break;
 
 
