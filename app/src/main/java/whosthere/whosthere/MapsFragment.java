@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,7 +46,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private static final float DEFAULT_ZOOM = 15f;
 
     private Location myLocation;
-    private DrawerLayout drawer;
     private FusedLocationProviderClient mFusedLocationProviderClient;
 
     private static ArrayList<Friend> friendList = new ArrayList<>();
@@ -68,12 +68,23 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mapFragment.getMapAsync(this);
 
         getLocationPermission();
+
+
+        /*
+        Button button = getActivity().findViewById(R.id.butt);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), profile_page_arthur.class);
+                getActivity().startActivity(intent);
+            }
+        });*/
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        //mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         mMap.getUiSettings().setMapToolbarEnabled(false);
@@ -235,7 +246,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             } else {
                 mMap.setMyLocationEnabled(false);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
-                //mLastKnownLocation = null;
                 getLocationPermission();
             }
         } catch (SecurityException e)  {
@@ -267,11 +277,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             friendLocation.setLongitude(friend.getLocation().longitude);
             friend.setDistanceAway(myLocation.distanceTo(friendLocation));
             LatLng location = friend.getLocation();
-            mMap.addMarker(new MarkerOptions().position(location).title(friend.getUserName()));
+            mMap.addMarker(new MarkerOptions().position(location).title(friend.getUserName())
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
         }
     }
-
-
 
     private void updateMyLocation(Location myLocation) {
         double lat = myLocation.getLatitude();

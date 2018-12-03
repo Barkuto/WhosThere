@@ -8,7 +8,6 @@ import android.widget.Switch;
 import android.widget.CompoundButton;
 import android.view.View;
 import android.content.SharedPreferences;
-import android.widget.Toast;
 import android.preference.PreferenceManager;
 import android.content.Context;
 
