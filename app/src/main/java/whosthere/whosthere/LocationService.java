@@ -13,10 +13,15 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.google.firebase.firestore.SetOptions;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class LocationService extends Service {
     private static final String TAG = "LOCATION SERVICE";
     private LocationManager mLocationManager = null;
-    private static final int LOCATION_INTERVAL = 10000;
+    private int locationInterval = 3600000;
     private static final float LOCATION_DISTANCE = 0;
 
     public static final String ACTION_LOCATION_BROADCAST = LocationService.class.getName() + "LocationBroadcast";
@@ -55,7 +60,7 @@ public class LocationService extends Service {
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
-            Log.d(TAG, "onStatusChanged: " + provider);
+            Log.e(TAG, "onStatusChanged: " + provider + " ---> Interval = " + locationInterval);
         }
     }
 
@@ -70,7 +75,6 @@ public class LocationService extends Service {
         intent.putExtra(EXTRA_LONGITUDE, lng);
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-
     }
 
     @Override
@@ -81,6 +85,15 @@ public class LocationService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //Log.e(TAG, "onStartCommand");
+
+
+        if (intent != null) {
+            locationInterval = intent.getIntExtra("interval", 3600000);
+            Log.e(TAG, "Changed interval to " + locationInterval);
+        } else {
+            locationInterval = 1;
+        }
+
         super.onStartCommand(intent, flags, startId);
         return START_STICKY;
         //return START_REDELIVER_INTENT;
@@ -91,22 +104,9 @@ public class LocationService extends Service {
         Log.e(TAG, "onCreate");
         initializeLocationManager();
 
-
-        Intent notificationIntent = new Intent(this, NavigationBarActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
-                notificationIntent, 0);
-
-        Notification notification = new Notification.Builder(this)
-                .setSmallIcon(R.drawable.ic_notifications_black_24dp)
-                .setContentTitle("Who's There Persistent Notification")
-                .setContentText("Keep in foreground")
-                .setContentIntent(pendingIntent).build();
-
-        startForeground(1337, notification);
-
         try {
             mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                    LOCATION_INTERVAL, LOCATION_DISTANCE, mLocationListeners[1]);
+                    locationInterval, LOCATION_DISTANCE, mLocationListeners[1]);
         } catch (java.lang.SecurityException ex) {
             Log.i(TAG, "fail to request location update, ignore", ex);
         } catch (IllegalArgumentException ex) {
@@ -114,7 +114,7 @@ public class LocationService extends Service {
         }
         try {
             mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                    LOCATION_INTERVAL, LOCATION_DISTANCE, mLocationListeners[0]);
+                    locationInterval, LOCATION_DISTANCE, mLocationListeners[0]);
         } catch (java.lang.SecurityException ex) {
             Log.i(TAG, "fail to request location update, ignore", ex);
         } catch (IllegalArgumentException ex) {

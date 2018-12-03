@@ -10,16 +10,18 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:paddingTop="25dp"
-        android:layout_height="wrap_content"
+        android:layout_height="150dp"
+        android:paddingTop="30dp"
+        android:paddingBottom="20dp"
         android:layout_gravity="center_horizontal"
         android:contentDescription="@string/whatgoeshere"
-        android:src="@drawable/logo" />
+        android:src="@drawable/logoo" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="About the Application"
+        android:padding="5dp"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
 
@@ -27,12 +29,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/description"
-        android:padding="15dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="20dp"
         android:textAlignment="center"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="5dp"
         android:text="Contributors"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
@@ -46,14 +51,21 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Faho Shubladze https://github.com/Ferkhat"
+            android:text="Ferkhat Shubladze https://github.com/Ferkhat"
             android:autoLink="web"
             android:padding="5dp"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Hammad Shah https://github.com/"
+            android:text="Van-Nhan Nguyen https://github.com/johnnyn1261"
+            android:autoLink="web"
+            android:padding="5dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Xuduo Shao https://github.com/eleven032"
             android:autoLink="web"
             android:padding="5dp"/>
 
@@ -67,14 +79,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="John Nguyen https://github.com/johnnyn1261"
-            android:autoLink="web"
-            android:padding="5dp"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Arthur Shao https://github.com/eleven032"
+            android:text="Hammad Shah https://github.com/"
             android:autoLink="web"
             android:padding="5dp"/>
     </LinearLayout>

@@ -5,7 +5,9 @@ import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -23,6 +25,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -32,9 +35,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 public class NavigationBarActivity extends AppCompatActivity
@@ -133,12 +138,20 @@ public class NavigationBarActivity extends AppCompatActivity
             }
         });
 
-        startService(new Intent(this, LocationService.class));
+
+        SharedPreferences myPrefs = PreferenceManager.getDefaultSharedPreferences(NavigationBarActivity.this);
+        //int interval = Integer.parseInt(myPrefs.getString("TEXT", "3600000"));
+        int interval = Integer.parseInt(myPrefs.getString("FREQ", "3600000"));
+        Intent serviceIntent = new Intent(this, LocationService.class);
+        serviceIntent.putExtra("interval", interval);
+        startService(serviceIntent);
+        Toast.makeText(this, myPrefs.getString("FREQ", "1"), Toast.LENGTH_SHORT).show();
+
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
-                        //Log.e("Location: ", "ENTERED ONRECEIVE");
+                        Log.e("Location: ", "ENTERED ONRECEIVE");
 
                         String latitude = intent.getStringExtra(LocationService.EXTRA_LATITUDE);
                         String longitude = intent.getStringExtra(LocationService.EXTRA_LONGITUDE);
@@ -146,6 +159,11 @@ public class NavigationBarActivity extends AppCompatActivity
                         if (latitude != null && longitude != null) {
                             //Log.e("Location: ", "(" + latitude + ", " + longitude + ")");
                             Log.e(TAG, "onLocationChanged: (" + latitude + ", " + longitude + ")");
+
+                            Map<String, Object> data = new HashMap<>();
+                            data.put("lat", latitude);
+                            data.put("lng", longitude);
+                            mDatabase.collection("users").document("").set(data, SetOptions.merge());
                         }
                     }
                 }, new IntentFilter(LocationService.ACTION_LOCATION_BROADCAST)
@@ -154,13 +172,19 @@ public class NavigationBarActivity extends AppCompatActivity
 
     @Override
     protected void onResume() {
-        startService(new Intent(this, LocationService.class));
+        SharedPreferences myPrefs = PreferenceManager.getDefaultSharedPreferences(NavigationBarActivity.this);
+        //int interval = Integer.parseInt(myPrefs.getString("TEXT", "3600000"));
+        int interval = Integer.parseInt(myPrefs.getString("FREQ", "3600000"));
+        Intent serviceIntent = new Intent(this, LocationService.class);
+        serviceIntent.putExtra("interval", interval);
+        startService(serviceIntent);
+        //Toast.makeText(this, myPrefs.getString("FREQ", "1"), Toast.LENGTH_SHORT).show();
+
         super.onResume();
     }
 
     @Override
     protected void onPause() {
-        startService(new Intent(this, LocationService.class));
         super.onPause();
     }
 
@@ -196,7 +220,6 @@ public class NavigationBarActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        startService(new Intent(this, LocationService.class));
 
         if (id == R.id.map) {
             MapsFragment mapsFragment = new MapsFragment();
