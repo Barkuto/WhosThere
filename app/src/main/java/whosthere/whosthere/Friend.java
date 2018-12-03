@@ -10,6 +10,14 @@ import android.util.Log;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.annotations.Nullable;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -25,7 +33,11 @@ import java.util.Date;
 public class Friend implements Serializable{
 
     private static final long serialVersionUID = 1L;
+    private static final String TAG = "Friend";
 
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore mDatabase;
+    private FirebaseUser mUser;
     //private LatLng location;
     private double lat;
     private double lng;
@@ -44,12 +56,6 @@ public class Friend implements Serializable{
     private Date lastSeen;
     private String uid;
 
-
-
-
-
-
-
     public Friend(LatLng location, String fullName, String userName) {
         //this.location = location;
         this.lat = location.latitude;
@@ -57,6 +63,11 @@ public class Friend implements Serializable{
         this.fullName = fullName;
         this.userName = userName;
         this.isMyFriend = true;
+    }
+
+
+    public Friend(){
+        //empty constructor
     }
     public Friend(LatLng location, String fullName, String userName, boolean isMyFriend) {
         if(location != null){
@@ -96,6 +107,7 @@ public class Friend implements Serializable{
         this.hasMeBlocked = hasMeBlocked;
         this.isIncognito = isIncognito;
 
+
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
         //Uri pathURI = storageRef.child("profilePics/default_avatar.png").getDownloadUrl();
@@ -117,6 +129,60 @@ public class Friend implements Serializable{
         });
 
 
+        this.mAuth = FirebaseAuth.getInstance();
+        this.mDatabase = FirebaseFirestore.getInstance();
+        this.mUser = mAuth.getCurrentUser();
+
+
+        mDatabase.collection("users").document(uid).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    //Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    Friend.this.isIncognito = (boolean)snapshot.getData().get("isIncognito");
+                    Friend.this.lat = ((Long)snapshot.getData().get("lat")).doubleValue();
+                    Friend.this.lng = ((Long)snapshot.getData().get("lng")).doubleValue();
+                    Friend.this.profilePicURL = (String)snapshot.getData().get("profilePicURL");
+
+                    Log.d(TAG, "Current data: " + snapshot.getData());
+                } else {
+                    //Log.d(TAG, "Current data: null");
+                }
+            }
+        });
+
+
+        mDatabase.collection("users").document(mUser.getUid()).collection("friends").document(uid).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    //Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    Friend.this.hasMeBlocked = (boolean) snapshot.getData().get("hasMeBlocked");
+                    //Friend.this.iRequested = (boolean) snapshot.getData().get("hasMeBlocked");
+                    Friend.this.isBlocked = (boolean) snapshot.getData().get("isBlocked");
+                    Friend.this.isFamily = (boolean) snapshot.getData().get("isFamily");
+                    //Friend.this.isIncognito = (boolean) snapshot.getData().get("isIncognito");
+                    Friend.this.lastSeen = (Date) snapshot.getData().get("lastSeen");
+                    //Friend.this.lat = ((Long) snapshot.getData().get("lat")).doubleValue();
+                   // Friend.this.lng = ((Long) snapshot.getData().get("lat")).doubleValue();
+
+
+                    Log.d(TAG, "Current data: " + snapshot.getData());
+                } else {
+                    //Log.d(TAG, "Current data: null");
+                }
+            }
+        });
 
     }
 
@@ -171,5 +237,103 @@ public class Friend implements Serializable{
 
     public String getProfilePicURL() {
         return profilePicURL;
+    }
+
+    public double getLat() {
+        return lat;
+    }
+
+    public void setLat(double lat) {
+        this.lat = lat;
+    }
+
+    public double getLng() {
+        return lng;
+    }
+
+    public void setLng(double lng) {
+        this.lng = lng;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public boolean isiRequested() {
+        return iRequested;
+    }
+
+    public void setiRequested(boolean iRequested) {
+        this.iRequested = iRequested;
+    }
+
+    public boolean isTheyRequested() {
+        return theyRequested;
+    }
+
+    public void setTheyRequested(boolean theyRequested) {
+        this.theyRequested = theyRequested;
+    }
+
+    public boolean isFamily() {
+        return isFamily;
+    }
+
+    public void setFamily(boolean family) {
+        isFamily = family;
+    }
+
+    public boolean isBlocked() {
+        return isBlocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        isBlocked = blocked;
+    }
+
+    public boolean isHasMeBlocked() {
+        return hasMeBlocked;
+    }
+
+    public void setHasMeBlocked(boolean hasMeBlocked) {
+        this.hasMeBlocked = hasMeBlocked;
+    }
+
+    public boolean isIncognito() {
+        return isIncognito;
+    }
+
+    public void setIncognito(boolean incognito) {
+        isIncognito = incognito;
+    }
+
+    public Date getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(Date lastSeen) {
+        this.lastSeen = lastSeen;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    @Override
+    public boolean equals(Object o){
+        Friend other = (Friend)o;
+        if(this.uid.equals(other.uid)){
+            return true;
+        } else {
+            return false;
+        }
     }
 }

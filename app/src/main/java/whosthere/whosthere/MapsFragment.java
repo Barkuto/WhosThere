@@ -20,6 +20,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -48,6 +51,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private Location myLocation;
     private FusedLocationProviderClient mFusedLocationProviderClient;
 
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
+
     private static ArrayList<Friend> friendList = new ArrayList<>();
 
 
@@ -58,6 +64,30 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_maps, container, false);
+
+
+        /*mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
+
+        locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(20 * 1000);
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    if (location != null) {
+                        //wayLatitude = location.getLatitude();
+                        //wayLongitude = location.getLongitude();
+                        myLocation = location;
+                        //txtLocation.setText(String.format(Locale.US, "%s -- %s", wayLatitude, wayLongitude));
+                    }
+                }
+            }
+        };*/
+
         return v;
     }
 
@@ -184,9 +214,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                         if (task.isSuccessful() && location != null) {
                             Log.d(TAG, "Location was found!");
                             Location currentLocation = (Location) task.getResult();
-                            myLocation = currentLocation;
-                            moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM);
-                            updateFriendsList();
+                            if(currentLocation != null){
+                                myLocation = currentLocation;
+                                moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM);
+                                updateFriendsList();
+                            } else {
+
+                            }
                         } else {
                             Log.d(TAG, "Location was NOT found!");
                             Toast.makeText(getActivity(), "Unable to get current location", Toast.LENGTH_SHORT).show();

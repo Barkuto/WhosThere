@@ -59,6 +59,7 @@ class DownloadProfilePicTask extends AsyncTask<Friend, Void, Bitmap> {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            Log.d("DOWNLOADER", "Profile pic URL: "+ friend[0].getProfilePicURL());
             mHttpUrl.disconnect();
         }
         return null;

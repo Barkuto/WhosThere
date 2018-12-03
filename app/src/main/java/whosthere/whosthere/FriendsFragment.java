@@ -3,6 +3,7 @@ package whosthere.whosthere;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
@@ -19,18 +20,19 @@ import java.util.ArrayList;
 
 public class FriendsFragment extends Fragment {
 
-    private ArrayList<Friend> mFriendsList;
+    private ArrayList<Friend> mPeopleList;
     private FriendAdapter mAdapter;
     private ListView mListView;
     private LayoutInflater mLayoutInflater;
+    private FloatingActionButton mAddFriend;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //friendsList = (ArrayList)getIntent().getParcelableArrayListExtra("mFriendList");
-        this.mFriendsList = ((NavigationBarActivity)getActivity()).getmFriendsList();
+        this.mPeopleList = ((NavigationBarActivity)getActivity()).getmFriendsList();
         this.mLayoutInflater = LayoutInflater.from(getContext());
 
-        mAdapter = new FriendAdapter(getActivity(), mFriendsList);
+        mAdapter = new FriendAdapter(getActivity(), mPeopleList);
 
 
     }
@@ -45,7 +47,7 @@ public class FriendsFragment extends Fragment {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Friend friend = mFriendsList.get(position);
+                Friend friend = mPeopleList.get(position);
                 // Link to map ... somehow
 
             }
@@ -71,6 +73,22 @@ public class FriendsFragment extends Fragment {
         });
 
         mListView.addHeaderView(searchView);
+
+
+        // AddFriends button
+        this.mAddFriend = (FloatingActionButton) v.findViewById(R.id.fab);
+        mAddFriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SearchFriendsFragment mNewFragment = new SearchFriendsFragment();
+                FragmentManager manager = getActivity().getSupportFragmentManager();
+                manager.beginTransaction().replace(R.id.mainLayout, mNewFragment).addToBackStack(null).commit();
+            }
+
+        });
+
+        getActivity().setTitle("Friends");
+
         return v;
     }
 

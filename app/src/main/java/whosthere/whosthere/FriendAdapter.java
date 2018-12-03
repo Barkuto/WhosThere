@@ -2,8 +2,10 @@ package whosthere.whosthere;
 
 import android.app.Activity;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,23 +17,40 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import whosthere.whosthere.db.DB;
 
 public class FriendAdapter extends ArrayAdapter<Friend>  implements Filterable{
+    private static final String TAG = "FriendsListAdapter";
 
     //FAHO: from stack overflow
     private ArrayList<Friend> mOriginalValues; // Original Values
     private ArrayList<Friend> mDisplayedValues;    // Values to be displayed
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore mDatabase;
+    private FirebaseUser mUser;
+    private View conv;
     LayoutInflater inflater;
 
     public FriendAdapter(Activity context, ArrayList<Friend> words) {
         super(context, 0 , words);
         this.mOriginalValues = words;
         this.mDisplayedValues = words;
+        this.mAuth = FirebaseAuth.getInstance();
+        this.mDatabase = FirebaseFirestore.getInstance();
+        this.mUser = mAuth.getCurrentUser();
         inflater = LayoutInflater.from(context);
 
     }
@@ -52,6 +71,8 @@ public class FriendAdapter extends ArrayAdapter<Friend>  implements Filterable{
         TextView distance;
         LinearLayout alreadyFriend;
         LinearLayout addFriend;
+        LinearLayout friendRequested;
+        LinearLayout friendRecevied;
         ImageView profilepic;
     }
 
@@ -88,6 +109,7 @@ public class FriendAdapter extends ArrayAdapter<Friend>  implements Filterable{
     public View getView(final int position, View convertView, ViewGroup parent) {
 
         ViewHolder holder = null;
+        final Friend current = mDisplayedValues.get(position);
 
         if (convertView == null) {
 
@@ -98,36 +120,154 @@ public class FriendAdapter extends ArrayAdapter<Friend>  implements Filterable{
             holder.username = (TextView) convertView.findViewById(R.id.username);
             holder.profilepic = (ImageView) convertView.findViewById(R.id.image);
             holder.distance = (TextView) convertView.findViewById(R.id.distance);
-            holder.alreadyFriend = (LinearLayout) convertView.findViewById(R.id.already_friend);
-            holder.addFriend = (LinearLayout) convertView.findViewById(R.id.add_friend);
+            holder.alreadyFriend =   (LinearLayout) convertView.findViewById(R.id.already_friend);
+            holder.addFriend =       (LinearLayout) convertView.findViewById(R.id.add_friend);
+            holder.friendRequested = (LinearLayout) convertView.findViewById(R.id.friend_requested);
+            holder.friendRecevied =  (LinearLayout) convertView.findViewById(R.id.friend_received);
+
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        holder.friendName.setText(mDisplayedValues.get(position).getFullName());
-        holder.username.setText("@"+mDisplayedValues.get(position).getUserName());
+        this.conv = convertView;
+
+        holder.friendName.setText(current.getFullName());
+        holder.username.setText("@"+current.getUserName());
 
         //holder.profilepic.setImageBitmap(mDisplayedValues.get(position).getProfilePic());
 
-        if(mDisplayedValues.get(position).getProfilePic() == null) {
-            DownloadProfilePicTask pdt = new DownloadProfilePicTask(mDisplayedValues.get(position), holder.profilepic);
-/*            while (mDisplayedValues.get(position).getProfilePicURL() == null ) {
+        if(current.getProfilePic() == null) {
+            DownloadProfilePicTask pdt = new DownloadProfilePicTask(current, holder.profilepic);
 
-            }*/
-            pdt.execute(mDisplayedValues.get(position)); //is this correct?
+            pdt.execute(current); //is this correct?
         } else {
-            holder.profilepic.setImageBitmap(mDisplayedValues.get(position).getProfilePic());
+            holder.profilepic.setImageBitmap(current.getProfilePic());
         }
-        holder.distance.setText(new Double(mDisplayedValues.get(position).getDistanceAway()).toString());
+        holder.distance.setText(new Double(current.getDistanceAway()).toString());
 
-        if(!mDisplayedValues.get(position).isMyFriend()){
+/*        if(!mDisplayedValues.get(position).isMyFriend()){
             holder.addFriend.setVisibility(View.VISIBLE);
             holder.alreadyFriend.findViewById(R.id.already_friend).setVisibility(View.GONE);
         } else {
             holder.addFriend.setVisibility(View.GONE);
             holder.alreadyFriend.findViewById(R.id.already_friend).setVisibility(View.VISIBLE);
+        }*/
+        if(current.isMyFriend()){
+            holder.alreadyFriend.setVisibility(View.VISIBLE);
+            holder.addFriend.setVisibility(View.GONE);
+            holder.friendRecevied.setVisibility(View.GONE);
+            holder.friendRequested.setVisibility(View.GONE);
+        } else if(current.isiRequested()){
+            holder.alreadyFriend.setVisibility(View.GONE);
+            holder.addFriend.setVisibility(View.GONE);
+            holder.friendRecevied.setVisibility(View.GONE);
+            holder.friendRequested.setVisibility(View.VISIBLE);
+        }else if(current.isTheyRequested()){
+            holder.alreadyFriend.setVisibility(View.GONE);
+            holder.addFriend.setVisibility(View.GONE);
+            holder.friendRecevied.setVisibility(View.VISIBLE);
+            holder.friendRequested.setVisibility(View.GONE);
+        } else {
+            holder.alreadyFriend.setVisibility(View.GONE);
+            holder.addFriend.setVisibility(View.VISIBLE);
+            holder.friendRecevied.setVisibility(View.GONE);
+            holder.friendRequested.setVisibility(View.GONE);
         }
+
+        holder.friendRecevied.findViewById(R.id.friend_received_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "Faho accepted friend request");
+                //adding a friend to me
+                Map<String, Object> modUser = new HashMap<>();
+                modUser.put("iRequested", false);
+                modUser.put("isFriend", true);
+                modUser.put("theyRequested", false);
+
+                mDatabase.collection("users").document(mUser.getUid()).collection("friends").document(current.getUid())
+                        .set(modUser, SetOptions.merge())
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "DocumentSnapshot successfully written!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error writing document", e);
+                            }
+                        });
+
+
+                //sending them a request
+                Friend meReference = ((NavigationBarActivity)getContext()).getMe();
+                Map<String, Object> modUser2 = new HashMap<>();
+                modUser2.put("iRequested", false);
+                modUser2.put("isFriend", true);
+                modUser2.put("theyRequested", false);
+                mDatabase.collection("users").document(current.getUid()).collection("friends").document(mUser.getUid())
+                        .set(modUser2, SetOptions.merge())
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "DocumentSnapshot successfully written!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error writing document", e);
+                            }
+                        });
+
+              FriendAdapter.this.conv.findViewById(R.id.already_friend).setVisibility(View.VISIBLE);
+              FriendAdapter.this.conv.findViewById(R.id.add_friend).setVisibility(View.GONE);
+                FriendAdapter.this.conv.findViewById(R.id.friend_received). setVisibility(View.GONE);
+                FriendAdapter.this.conv.findViewById(R.id.friend_requested) .setVisibility(View.GONE);
+
+                Map<String, Object> notification = new HashMap<>();
+                notification.put("notType", "friendAccept");
+                notification.put("isSent", false);
+                mDatabase.collection("users").document(current.getUid()).collection("notifications").document(mUser.getUid())
+                        .set(notification, SetOptions.merge())
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "DocumentSnapshot successfully written!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error writing document", e);
+                            }
+                        });
+
+            }
+        });
+
+        /*holder.alreadyFriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });*/
+
+        holder.addFriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                current.setiRequested(true);
+
+            }
+        });
+        holder.friendRecevied.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
 
         holder.listLayout.setOnClickListener(new View.OnClickListener() {
 
@@ -190,9 +330,19 @@ public class FriendAdapter extends ArrayAdapter<Friend>  implements Filterable{
                                 || un.toLowerCase().startsWith(constraint.toString())) {
 
                             filteredArrListFriends.add(new Friend(mOriginalValues.get(i).getLocation(),
-                                    mOriginalValues.get(i).getFullName(),
-                                    //mOriginalValues.get(i).getLastName(),
-                                    mOriginalValues.get(i).getUserName()));
+                                mOriginalValues.get(i).getFullName(),
+                                mOriginalValues.get(i).getUserName(),
+                                mOriginalValues.get(i).isMyFriend(),
+                                mOriginalValues.get(i).isiRequested(),
+                                mOriginalValues.get(i).isTheyRequested(),
+                                mOriginalValues.get(i).isFamily(),
+                                mOriginalValues.get(i).isBlocked(),
+                                mOriginalValues.get(i).isIncognito(),
+                                mOriginalValues.get(i).isHasMeBlocked(),
+                                mOriginalValues.get(i).getLastSeen(),
+                                mOriginalValues.get(i).getUid(),
+                                mOriginalValues.get(i).getProfilePicURL())
+                            );
                         }
                     }
 
@@ -211,4 +361,7 @@ public class FriendAdapter extends ArrayAdapter<Friend>  implements Filterable{
         };
         return filter;
     }
+
+
+
 }
