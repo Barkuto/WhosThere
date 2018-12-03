@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import whosthere.whosthere.db.DB;
 
 public class FriendAdapter extends ArrayAdapter<Friend>  implements Filterable{
@@ -73,7 +74,7 @@ public class FriendAdapter extends ArrayAdapter<Friend>  implements Filterable{
         LinearLayout addFriend;
         LinearLayout friendRequested;
         LinearLayout friendRecevied;
-        ImageView profilepic;
+        CircleImageView profilepic;
     }
 
 /*    @Override
@@ -118,7 +119,7 @@ public class FriendAdapter extends ArrayAdapter<Friend>  implements Filterable{
             holder.listLayout = (LinearLayout)convertView.findViewById(R.id.list_container);
             holder.friendName = (TextView) convertView.findViewById(R.id.fullname);
             holder.username = (TextView) convertView.findViewById(R.id.username);
-            holder.profilepic = (ImageView) convertView.findViewById(R.id.image);
+            holder.profilepic = (CircleImageView) convertView.findViewById(R.id.image);
             holder.distance = (TextView) convertView.findViewById(R.id.distance);
             holder.alreadyFriend =   (LinearLayout) convertView.findViewById(R.id.already_friend);
             holder.addFriend =       (LinearLayout) convertView.findViewById(R.id.add_friend);

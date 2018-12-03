@@ -9,11 +9,22 @@
     android:paddingTop="24dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <ImageView
+<!--    <ImageView
+        android:layout_width="100dp"
+        android:id="@+id/my_profile_pic"
+        android:layout_height="match_parent"
+        android:paddingRight="5dp"
+        android:src="@mipmap/ic_launcher_round"/>-->
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/my_profile_pic"
         android:layout_width="100dp"
         android:layout_height="match_parent"
         android:paddingRight="5dp"
-        android:src="@mipmap/ic_launcher_round"/>
+        android:src="@drawable/default_avatar"
+        app:civ_border_width="2dp"
+        app:civ_border_color="#e7e7e7"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,6 +43,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
 
         <TextView
+            android:id="@+id/my_name"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:paddingTop="15dp"
