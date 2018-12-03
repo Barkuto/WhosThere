@@ -7,23 +7,24 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center">
 
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
-            android:paddingTop="25dp"
-            android:layout_height="wrap_content"
+            android:layout_height="150dp"
             android:layout_gravity="center_horizontal"
             android:contentDescription="@string/whatgoeshere"
-            android:src="@drawable/logo" />
+            android:src="@drawable/logoo" />
 
         <TextView
             android:id="@+id/textView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/welcome"
+            android:text="Who's There"
+            android:padding="10dp"
             android:gravity="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
@@ -33,6 +34,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:text="@string/plz_login"
+            android:padding="5dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
 
         <EditText

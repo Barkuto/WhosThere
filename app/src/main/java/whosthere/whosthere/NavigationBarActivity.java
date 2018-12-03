@@ -1,6 +1,7 @@
 package whosthere.whosthere;
 
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -21,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -144,8 +146,6 @@ public class NavigationBarActivity extends AppCompatActivity
                         if (latitude != null && longitude != null) {
                             //Log.e("Location: ", "(" + latitude + ", " + longitude + ")");
                             Log.e(TAG, "onLocationChanged: (" + latitude + ", " + longitude + ")");
-
-
                         }
                     }
                 }, new IntentFilter(LocationService.ACTION_LOCATION_BROADCAST)
@@ -177,7 +177,7 @@ public class NavigationBarActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.navigation_bar, menu);
+        // getMenuInflater().inflate(R.menu.navigation_bar, menu);
         return true;
     }
 
@@ -187,11 +187,6 @@ public class NavigationBarActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -215,19 +210,16 @@ public class NavigationBarActivity extends AppCompatActivity
             manager.beginTransaction().replace(R.id.mainLayout, mNewFragment).addToBackStack(null).commit();
 
         } else if (id == R.id.profile) {
-            MapsFragment mapsFragment = new MapsFragment();
-            FragmentManager manager = getSupportFragmentManager();
-            manager.beginTransaction().replace(R.id.mainLayout, mapsFragment).commit();
+            Intent intent = new Intent(NavigationBarActivity.this, profile_page_arthur.class);
+            NavigationBarActivity.this.startActivity(intent);
 
         } else if (id == R.id.settings) {
-            MapsFragment mapsFragment = new MapsFragment();
-            FragmentManager manager = getSupportFragmentManager();
-            manager.beginTransaction().replace(R.id.mainLayout, mapsFragment).commit();
+            Intent intent = new Intent(NavigationBarActivity.this, MyPreferencesActivity.class);
+            NavigationBarActivity.this.startActivity(intent);
 
         } else if (id == R.id.about) {
-            MapsFragment mapsFragment = new MapsFragment();
-            FragmentManager manager = getSupportFragmentManager();
-            manager.beginTransaction().replace(R.id.mainLayout, mapsFragment).commit();
+            Intent intent = new Intent(NavigationBarActivity.this, AboutActivity.class);
+            NavigationBarActivity.this.startActivity(intent);
 
         }
 
@@ -235,4 +227,5 @@ public class NavigationBarActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 }
