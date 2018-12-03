@@ -1,18 +1,24 @@
 package whosthere.whosthere;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -35,7 +41,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 
-public class LoginFragment extends Fragment implements View.OnClickListener{
+public class LoginFragment extends Fragment implements View.OnClickListener, Runnable {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -62,7 +68,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.mFragmentManager = getActivity().getSupportFragmentManager();
-        this.mAuth = ((EntranceActivity)getActivity()).getmAuth();
+        this.mAuth = ((EntranceActivity) getActivity()).getmAuth();
         this.mFirstLogin = true;
     }
 
@@ -103,11 +109,14 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
             }
         });
 
+        registerSystemUiVisibility();
+        onWindowFocusChanged(true);
+
 
         this.mEmailField = v.findViewById(R.id.user_email);
         this.mPasswordField = v.findViewById(R.id.user_password);
         this.mLoginButton = v.findViewById(R.id.login_button);
-        this.mErrorLogin = (TextView)v.findViewById(R.id.login_error_msg);
+        this.mErrorLogin = (TextView) v.findViewById(R.id.login_error_msg);
 
         return v;
 
@@ -123,6 +132,12 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
         super.onDetach();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterSystemUiVisibility();
+        exitFullscreen(getActivity());
+    }
 
     @Override
     public void onClick(View v) {
@@ -133,7 +148,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
     }
 
 
-
     private void updateUI(FirebaseUser user) {
         hideProgressDialog();
         if (user != null) {
@@ -141,7 +155,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
             Intent gotoMain = new Intent(getActivity(), NavigationBarActivity.class);
             gotoMain.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             getActivity().startActivity(gotoMain);
-        } else if(!mFirstLogin) {
+        } else if (!mFirstLogin) {
             mErrorLogin.setVisibility(View.VISIBLE);
         }
     }
@@ -178,7 +192,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
 
         // [START sign_in_with_email]
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener( getActivity(), new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
@@ -204,6 +218,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
                 });
         // [END sign_in_with_email]
     }
+
     public void showProgressDialog() {
         if (mProgressDialog == null) {
             mProgressDialog = new ProgressDialog(getContext());
@@ -230,7 +245,68 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onStop() {
         super.onStop();
+        _handler.removeCallbacks(this);
         hideProgressDialog();
     }
 
+    @Override
+    public void run() {
+        setFullscreen();
+    }
+
+    public void setFullscreen() {
+        setFullscreen(getActivity());
+    }
+
+    public void setFullscreen(Activity activity) {
+        int flags = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+
+        activity.getWindow().getDecorView().setSystemUiVisibility(flags);
+    }
+
+    public void exitFullscreen(Activity activity) {
+        activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+    }
+
+    private Handler _handler = new Handler();
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private void registerSystemUiVisibility() {
+        final View decorView = getActivity().getWindow().getDecorView();
+        decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+
+            @Override
+            public void onSystemUiVisibilityChange(int visibility) {
+                if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                    setFullscreen();
+                }
+            }
+        });
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private void unregisterSystemUiVisibility() {
+        final View decorView = getActivity().getWindow().getDecorView();
+        decorView.setOnSystemUiVisibilityChangeListener(null);
+    }
+
+    public void onWindowFocusChanged(boolean hasFocus) {
+        if (hasFocus) {
+            _handler.removeCallbacks(this);
+            _handler.postDelayed(this, 300);
+        } else {
+            _handler.removeCallbacks(this);
+        }
+    }
+
+    public void onKeyDown(int keyCode) {
+        if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)) {
+            _handler.removeCallbacks(this);
+            _handler.postDelayed(this, 500);
+        }
+    }
 }
+

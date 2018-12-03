@@ -52,8 +52,7 @@
             android:name=".NavigationBarActivity"
             android:label="@string/title_activity_navigation_bar"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".EntranceActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+        <activity android:name=".EntranceActivity">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

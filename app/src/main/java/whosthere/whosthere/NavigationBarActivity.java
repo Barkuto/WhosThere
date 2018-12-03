@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
@@ -61,14 +62,15 @@ public class NavigationBarActivity extends AppCompatActivity
         this.mDatabase = FirebaseFirestore.getInstance();
         this.mUser = mAuth.getCurrentUser();
         this.mFriendsList = new ArrayList<>();
-        FloatingActionButton fab = findViewById(R.id.fab);
+
+        /*FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Hello, World", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
+        });*/
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -142,6 +144,8 @@ public class NavigationBarActivity extends AppCompatActivity
                         if (latitude != null && longitude != null) {
                             //Log.e("Location: ", "(" + latitude + ", " + longitude + ")");
                             Log.e(TAG, "onLocationChanged: (" + latitude + ", " + longitude + ")");
+
+
                         }
                     }
                 }, new IntentFilter(LocationService.ACTION_LOCATION_BROADCAST)
@@ -197,6 +201,7 @@ public class NavigationBarActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        startService(new Intent(this, LocationService.class));
 
         if (id == R.id.map) {
             MapsFragment mapsFragment = new MapsFragment();
