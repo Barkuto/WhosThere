@@ -237,6 +237,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
                             newUser.put("lat", 0);
                             newUser.put("lng", 0);
                             newUser.put("isIncognito", false);
+                            newUser.put("radius", 1);
                             mDatabase.collection("users").document(mAuth.getUid())
                                     .set(newUser)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
