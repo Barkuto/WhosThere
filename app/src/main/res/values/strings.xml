@@ -123,7 +123,7 @@
 
     <!--arthur part-->
 
-    <string name="distribution_set">Do Not Distributed</string>
+    <string name="distribution_set">Notifiction</string>
     <string name="setting">setting</string>
     <string name="logout">Log out</string>
 
