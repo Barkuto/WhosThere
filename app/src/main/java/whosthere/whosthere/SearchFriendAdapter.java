@@ -34,6 +34,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class SearchFriendAdapter extends ArrayAdapter<Friend>  implements Filterable{
     private static final String TAG = "SearchAdapter";
 
@@ -85,7 +87,7 @@ public class SearchFriendAdapter extends ArrayAdapter<Friend>  implements Filter
         TextView distance;
         LinearLayout alreadyFriend;
         LinearLayout addFriend;
-        ImageView profilepic;
+        CircleImageView profilepic;
         LinearLayout friendRequested;
         LinearLayout friendRecevied;
     }
@@ -102,7 +104,7 @@ public class SearchFriendAdapter extends ArrayAdapter<Friend>  implements Filter
             holder.listLayout = (LinearLayout)convertView.findViewById(R.id.list_container);
             holder.friendName = (TextView) convertView.findViewById(R.id.fullname);
             holder.username = (TextView) convertView.findViewById(R.id.username);
-            holder.profilepic = (ImageView) convertView.findViewById(R.id.image);
+            holder.profilepic = (CircleImageView) convertView.findViewById(R.id.image);
             holder.distance = (TextView) convertView.findViewById(R.id.distance);
             holder.alreadyFriend = (LinearLayout) convertView.findViewById(R.id.already_friend);
             holder.addFriend = (LinearLayout) convertView.findViewById(R.id.add_friend);

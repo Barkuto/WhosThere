@@ -25,6 +25,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Button;
 
@@ -53,6 +54,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class NavigationBarActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -345,6 +348,9 @@ public class NavigationBarActivity extends AppCompatActivity
     protected void onResume() {
         startService(new Intent(this, LocationService.class));
         super.onResume();
+        this.pullFriendUpdates();
+
+
     }
 
     @Override
@@ -402,6 +408,9 @@ public class NavigationBarActivity extends AppCompatActivity
 
         } else if (id == R.id.profile) {
             Intent intent = new Intent(NavigationBarActivity.this, profile_page_arthur.class);
+            intent.putExtra("meName", this.me.getFullName());
+            intent.putExtra("meUserName", this.me.getUserName());
+            intent.putExtra("meIncognito", this.me.isIncognito());
             NavigationBarActivity.this.startActivity(intent);
 
         } else if (id == R.id.settings) {
@@ -434,6 +443,7 @@ public class NavigationBarActivity extends AppCompatActivity
                         me.setLng(((Long)document.get("lng")).doubleValue());
                         me.setProfilePicURL((String)document.get("profilePicURL"));
                         me.setUserName((String)document.get("user_name"));
+                        NavigationBarActivity.this.updateViews();
                     } else {
                         Log.d(TAG, "No such document");
                     }
@@ -485,5 +495,19 @@ public class NavigationBarActivity extends AppCompatActivity
                 .setAction("Action", null);
         //mSnack.setAction("Button", new MyButtonListener());
         mSnack.show();
+    }
+
+
+    public void updateViews(){
+
+        if(me.getProfilePic() == null) {
+            DownloadProfilePicTask pdt = new DownloadProfilePicTask(me, (CircleImageView)findViewById(R.id.my_profile_pic));
+
+            pdt.execute(me); //is this correct?
+        } else {
+            ((CircleImageView)findViewById(R.id.my_profile_pic)).setImageBitmap(me.getProfilePic());
+        }
+
+        ((TextView)findViewById(R.id.my_name)).setText(me.getFullName());
     }
 }

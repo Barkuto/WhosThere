@@ -84,14 +84,6 @@
             android:name=".AboutActivity"
             android:label="About"/>
 
-        <activity
-            android:name=".profile_page_arthur"
-            android:label="My Profile"/>
-
-        <activity
-            android:name=".MyPreferencesActivity"
-            android:label="Settings"
-            android:theme="@style/AppTheme"/>
 
     </application>
 
