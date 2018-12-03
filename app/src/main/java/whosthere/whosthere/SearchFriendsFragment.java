@@ -1,40 +1,47 @@
 package whosthere.whosthere;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
 
-public class FriendsFragment extends Fragment {
+public class SearchFriendsFragment extends Fragment {
+    private static final String TAG = "SearchFragment";
 
-    private ArrayList<Friend> mPeopleList;
-    private FriendAdapter mAdapter;
+    private ArrayList<Friend> mFriendsList;
+    private SearchFriendAdapter mAdapter;
     private ListView mListView;
     private LayoutInflater mLayoutInflater;
-    private FloatingActionButton mAddFriend;
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore mDatabase;
+    private FirebaseUser mUser;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //friendsList = (ArrayList)getIntent().getParcelableArrayListExtra("mFriendList");
-        this.mPeopleList = ((NavigationBarActivity)getActivity()).getmFriendsList();
+        //this.mFriendsList = ((NavigationBarActivity)getActivity()).getmFriendsList();
+        this.mFriendsList = new ArrayList<Friend>();
         this.mLayoutInflater = LayoutInflater.from(getContext());
 
-        mAdapter = new FriendAdapter(getActivity(), mPeopleList);
-
-
+        mAdapter = new SearchFriendAdapter(getActivity(), mFriendsList);
     }
 
     @Override
@@ -47,47 +54,26 @@ public class FriendsFragment extends Fragment {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Friend friend = mPeopleList.get(position);
+                Friend friend = mFriendsList.get(position);
                 // Link to map ... somehow
 
             }
         });
 
-        EditText searchView = (EditText)mLayoutInflater.inflate(R.layout.search_view, null);
-
-        searchView.addTextChangedListener(new TextWatcher() {
-
+        RelativeLayout searchView = ( RelativeLayout)mLayoutInflater.inflate(R.layout.searchnew_view, null);
+        final EditText searchText = (EditText)searchView.findViewById(R.id.search_header);
+        Button searchButton = searchView.findViewById(R.id.search_button);
+        searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Call back the Adapter with current character to Filter
-                mAdapter.getFilter().filter(s.toString());
-            }
+            public void onClick(View v) {
+                Log.i(TAG, "Clicked Search Button!!!");
 
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count,int after) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
+                mAdapter.getFilter().filter(searchText.getText().toString().toString());
             }
         });
-
         mListView.addHeaderView(searchView);
 
-
-        // AddFriends button
-        this.mAddFriend = (FloatingActionButton) v.findViewById(R.id.fab);
-        mAddFriend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SearchFriendsFragment mNewFragment = new SearchFriendsFragment();
-                FragmentManager manager = getActivity().getSupportFragmentManager();
-                manager.beginTransaction().replace(R.id.mainLayout, mNewFragment).addToBackStack(null).commit();
-            }
-
-        });
-
-        getActivity().setTitle("Friends");
+        getActivity().setTitle("Search For Friends");
 
         return v;
     }

@@ -44,12 +44,6 @@ public class Friend implements Serializable{
     private Date lastSeen;
     private String uid;
 
-
-
-
-
-
-
     public Friend(LatLng location, String fullName, String userName) {
         //this.location = location;
         this.lat = location.latitude;
@@ -57,6 +51,11 @@ public class Friend implements Serializable{
         this.fullName = fullName;
         this.userName = userName;
         this.isMyFriend = true;
+    }
+
+
+    public Friend(){
+        //empty constructor
     }
     public Friend(LatLng location, String fullName, String userName, boolean isMyFriend) {
         if(location != null){
@@ -171,5 +170,103 @@ public class Friend implements Serializable{
 
     public String getProfilePicURL() {
         return profilePicURL;
+    }
+
+    public double getLat() {
+        return lat;
+    }
+
+    public void setLat(double lat) {
+        this.lat = lat;
+    }
+
+    public double getLng() {
+        return lng;
+    }
+
+    public void setLng(double lng) {
+        this.lng = lng;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public boolean isiRequested() {
+        return iRequested;
+    }
+
+    public void setiRequested(boolean iRequested) {
+        this.iRequested = iRequested;
+    }
+
+    public boolean isTheyRequested() {
+        return theyRequested;
+    }
+
+    public void setTheyRequested(boolean theyRequested) {
+        this.theyRequested = theyRequested;
+    }
+
+    public boolean isFamily() {
+        return isFamily;
+    }
+
+    public void setFamily(boolean family) {
+        isFamily = family;
+    }
+
+    public boolean isBlocked() {
+        return isBlocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        isBlocked = blocked;
+    }
+
+    public boolean isHasMeBlocked() {
+        return hasMeBlocked;
+    }
+
+    public void setHasMeBlocked(boolean hasMeBlocked) {
+        this.hasMeBlocked = hasMeBlocked;
+    }
+
+    public boolean isIncognito() {
+        return isIncognito;
+    }
+
+    public void setIncognito(boolean incognito) {
+        isIncognito = incognito;
+    }
+
+    public Date getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(Date lastSeen) {
+        this.lastSeen = lastSeen;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    @Override
+    public boolean equals(Object o){
+        Friend other = (Friend)o;
+        if(this.uid.equals(other.uid)){
+            return true;
+        } else {
+            return false;
+        }
     }
 }
