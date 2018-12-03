@@ -1,6 +1,6 @@
 package whosthere.whosthere;
 
-
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Location;
@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +28,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
@@ -47,7 +49,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private static final float DEFAULT_ZOOM = 15f;
 
     private Location myLocation;
-    private DrawerLayout drawer;
     private FusedLocationProviderClient mFusedLocationProviderClient;
 
     private LocationRequest locationRequest;
@@ -97,12 +98,23 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mapFragment.getMapAsync(this);
 
         getLocationPermission();
+
+
+        /*
+        Button button = getActivity().findViewById(R.id.butt);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), profile_page_arthur.class);
+                getActivity().startActivity(intent);
+            }
+        });*/
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        //mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         mMap.getUiSettings().setMapToolbarEnabled(false);
@@ -110,7 +122,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         try {
             // Customise the styling of the base map using a JSON object defined
             // in a raw resource file.
-            boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.style_json_retro));
+            boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.style_json_bluegreen));
+            //boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.style_json_retro));
             //boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.style_json_aubergine));
 
             if (!success) {
@@ -119,6 +132,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         } catch (Resources.NotFoundException e) {
             Log.e(TAG, "Can't find style. Error: ", e);
         }
+
+        mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(-37.813, 144.962))
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
 
         // Set custom window for map location marker
         if (mMap != null) {
@@ -190,11 +207,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         try {
             if (mLocationPermissionGranted) {
-                Task location = mFusedLocationProviderClient.getLastLocation();
+                final Task location = mFusedLocationProviderClient.getLastLocation();
                 location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
-                        if (task.isSuccessful()) {
+                        if (task.isSuccessful() && location != null) {
                             Log.d(TAG, "Location was found!");
                             Location currentLocation = (Location) task.getResult();
                             if(currentLocation != null){
@@ -263,20 +280,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             } else {
                 mMap.setMyLocationEnabled(false);
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
-                //mLastKnownLocation = null;
                 getLocationPermission();
             }
         } catch (SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }
     }
-
-
-
-
-
-
-
 
     private void updateFriendsList() {
 /*        friendList = new ArrayList<>();
@@ -302,16 +311,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             friendLocation.setLongitude(friend.getLocation().longitude);
             friend.setDistanceAway(myLocation.distanceTo(friendLocation));
             LatLng location = friend.getLocation();
-            mMap.addMarker(new MarkerOptions().position(location).title(friend.getUserName()));
+            mMap.addMarker(new MarkerOptions().position(location).title(friend.getUserName())
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
         }
     }
-
-
 
     private void updateMyLocation(Location myLocation) {
         double lat = myLocation.getLatitude();
         double lng = myLocation.getLongitude();
     }
-
 
 }
