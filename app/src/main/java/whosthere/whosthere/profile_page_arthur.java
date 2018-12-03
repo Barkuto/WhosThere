@@ -60,6 +60,8 @@ public class profile_page_arthur extends AppCompatActivity {
             public void onClick(View v) {
                 SharedPreferences myPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
                 SharedPreferences.Editor editor = myPrefs.edit();
+
+
                 editor.clear().commit();
                 mAuth.signOut();
                 Intent gotoLogin = new Intent(profile_page_arthur.this, EntranceActivity.class);
