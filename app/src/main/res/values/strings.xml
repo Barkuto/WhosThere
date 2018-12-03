@@ -121,6 +121,38 @@
 
 
 
+    <!--arthur part-->
+
+    <string name="distribution_set">Do Not Distributed</string>
+    <string name="setting">setting</string>
+    <string name="logout">Log out</string>
+
+    <string-array name="distance">
+        <item>1 mile</item>
+        <item>5 miles</item>
+        <item>10 miles</item>
+    </string-array>
+    <string-array name="distance_value">
+        <item>1</item>
+        <item>5</item>
+        <item>10</item>
+    </string-array>
+
+
+    <string-array name="time">
+        <item>1 min</item>
+        <item>5 mins</item>
+        <item>30 mins</item>
+        <item>60 mins</item>
+    </string-array>
+    <string-array name="time_value">
+        <item>1</item>
+        <item>5</item>
+        <item>30</item>
+        <item>60</item>
+    </string-array>
+
+
     <!-- Drawer -->
     <string name="open">Open navigation drawer</string>
     <string name="close">Close navigation Drawer</string>

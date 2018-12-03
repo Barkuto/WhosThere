@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <!--use for share location permission-->
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="distribution"
+        android:title="@string/distribution_set" />
+
+
+    <!--use for setting distance notification-->
+
+    <ListPreference
+        android:defaultValue="1"
+        android:dependency="distribution"
+        android:dialogTitle="Select One Distance"
+        android:entries="@array/distance"
+        android:entryValues="@array/distance_value"
+        android:key="distance_key"
+        android:title="Notification distance" />
+
+
+    <!--use for distance checking set-->
+
+    <ListPreference
+        android:defaultValue="1"
+        android:dependency="distribution"
+        android:dialogTitle="Select One Frequency"
+        android:entries="@array/time"
+        android:entryValues="@array/time_value"
+        android:key="frequency_choice"
+        android:title="Refresh Frequency" />
+
+
+
+
+
+</PreferenceScreen>
