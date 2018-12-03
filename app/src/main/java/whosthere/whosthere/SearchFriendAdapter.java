@@ -162,6 +162,25 @@ public class SearchFriendAdapter extends ArrayAdapter<Friend>  implements Filter
             public void onClick(View v) {
                 Log.i(TAG, "Faho request friend request");
 
+                Map<String, Object> notification = new HashMap<>();
+                notification.put("notType", "friendRequest");
+                notification.put("isSent", false);
+                mDatabase.collection("users").document(current.getUid()).collection("notifications").document(mUser.getUid())
+                        .set(notification, SetOptions.merge())
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "DocumentSnapshot successfully written!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error writing document", e);
+                            }
+                        });
+
+
                 current.setiRequested(true);
                 //adding a friend to me
                 Map<String, Object> modUser = new HashMap<>();
@@ -286,6 +305,23 @@ public class SearchFriendAdapter extends ArrayAdapter<Friend>  implements Filter
                  SearchFriendAdapter.this.conv.findViewById(R.id.friend_received). setVisibility(View.GONE);
                  SearchFriendAdapter.this.conv.findViewById(R.id.friend_requested) .setVisibility(View.GONE);
 
+                Map<String, Object> notification = new HashMap<>();
+                notification.put("notType", "friendAccept");
+                notification.put("isSent", false);
+                mDatabase.collection("users").document(current.getUid()).collection("notifications").document(mUser.getUid())
+                        .set(notification, SetOptions.merge())
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "DocumentSnapshot successfully written!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error writing document", e);
+                            }
+                        });
 
             }
         });
@@ -386,7 +422,9 @@ public class SearchFriendAdapter extends ArrayAdapter<Friend>  implements Filter
                                             );
                                         }*/
 
-
+                                    if(document.getData().get("isIncognito") == null){
+                                       continue;
+                                    }
                                     if(!((String)document.getId()).equals(mUser.getUid()) && !(boolean)document.getData().get("isIncognito")){
                                         Log.i(TAG, "FAHO about to add user to search list!!");
                                         mOriginalValues.add(new Friend(

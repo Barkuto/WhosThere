@@ -227,6 +227,23 @@ public class FriendAdapter extends ArrayAdapter<Friend>  implements Filterable{
                 FriendAdapter.this.conv.findViewById(R.id.friend_received). setVisibility(View.GONE);
                 FriendAdapter.this.conv.findViewById(R.id.friend_requested) .setVisibility(View.GONE);
 
+                Map<String, Object> notification = new HashMap<>();
+                notification.put("notType", "friendAccept");
+                notification.put("isSent", false);
+                mDatabase.collection("users").document(current.getUid()).collection("notifications").document(mUser.getUid())
+                        .set(notification, SetOptions.merge())
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "DocumentSnapshot successfully written!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error writing document", e);
+                            }
+                        });
 
             }
         });

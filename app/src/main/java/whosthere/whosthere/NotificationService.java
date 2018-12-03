@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -39,7 +40,6 @@ public class NotificationService extends FirebaseMessagingService {
         // sends notification
         // messages. For more see: https://firebase.google.com/docs/cloud-messaging/concept-options
         // [END_EXCLUDE]
-
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
         Log.d(TAG, "From: " + remoteMessage.getFrom());
@@ -50,7 +50,7 @@ public class NotificationService extends FirebaseMessagingService {
 
             if (/* Check if data needs to be processed by long running job */ true) {
                 // For long-running tasks (10 seconds or more) use Firebase Job Dispatcher.
-                scheduleJob();
+                scheduleJob("Friend!");
             } else {
                 // Handle message within 10 seconds
                 handleNow();
@@ -90,12 +90,14 @@ public class NotificationService extends FirebaseMessagingService {
     /**
      * Schedule a job using FirebaseJobDispatcher.
      */
-    private void scheduleJob() {
+    private void scheduleJob(String userName) {
         // [START dispatch_job]
         FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(this));
+        Bundle bundl = new Bundle();
+        bundl.putString("Username", userName);
         Job myJob = dispatcher.newJobBuilder()
                 .setService(MyJobService.class)
-                .setTag("my-job-tag")
+                .setTag("my-job-tag").setExtras(bundl)
                 .build();
         dispatcher.schedule(myJob);
         // [END dispatch_job]

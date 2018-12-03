@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.annotations.Nullable;
@@ -168,27 +169,7 @@ public class NavigationBarActivity extends AppCompatActivity
 
         this.mUser = mAuth.getCurrentUser();
 
-        DocumentReference docRef2 = mDatabase.collection("users").document(mUser.getUid());
-        docRef2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        me.setFullName((String)document.get("full_name"));
-                        me.setIncognito((boolean)document.get("isIncognito"));
-                        me.setLat(((Long)document.get("lat")).doubleValue());
-                        me.setLng(((Long)document.get("lng")).doubleValue());
-                        me.setProfilePicURL((String)document.get("profilePicURL"));
-                        me.setUserName((String)document.get("user_name"));
-                    } else {
-                        Log.d(TAG, "No such document");
-                    }
-                } else {
-                    Log.d(TAG, "get failed with ", task.getException());
-                }
-            }
-        });
+
 
 /*        DocumentReference docRef = mDatabase.collection("users").document(*//*mUser.getUid()*//* "fahodayi");
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -233,7 +214,8 @@ public class NavigationBarActivity extends AppCompatActivity
             }
         });*/
         //CollectionReference friendsRef2 = mDatabase.collection("users").document(mUser.getUid()).collection("friends");
-        Task<QuerySnapshot> friendsRef = mDatabase.collection("users").document(mUser.getUid()).collection("friends")
+        //this.pullFriendUpdates();
+        /*     Task<QuerySnapshot> friendsRef = mDatabase.collection("users").document(mUser.getUid()).collection("friends")
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -264,7 +246,7 @@ public class NavigationBarActivity extends AppCompatActivity
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
-                });
+                });*/
 
 
         /*DocumentReference docRef = mDatabase.collection("users").document(mUser.getUid()).collection("friends");
@@ -334,11 +316,14 @@ public class NavigationBarActivity extends AppCompatActivity
 
         //END FRIEND REQUEST LISTENER
 
+
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        this.pullFriendUpdates();
 
     }
 
@@ -414,5 +399,72 @@ public class NavigationBarActivity extends AppCompatActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void pullFriendUpdates(){
+        DocumentReference docRef2 = mDatabase.collection("users").document(mUser.getUid());
+        docRef2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        me.setFullName((String)document.get("full_name"));
+                        me.setIncognito((boolean)document.get("isIncognito"));
+                        me.setLat(((Long)document.get("lat")).doubleValue());
+                        me.setLng(((Long)document.get("lng")).doubleValue());
+                        me.setProfilePicURL((String)document.get("profilePicURL"));
+                        me.setUserName((String)document.get("user_name"));
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+        mFriendsList.clear();
+        Task<QuerySnapshot> friendsRef = mDatabase.collection("users").document(mUser.getUid()).collection("friends")
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                if((boolean)document.getData().get("isBlocked") || (boolean)document.getData().get("hasMeBlocked")){
+                                    continue;
+                                }
+                                Friend f = new Friend(
+                                        new LatLng(
+                                                ((Long)document.getData().get("lat")).doubleValue(),
+
+                                                ((Long)document.getData().get("lng")).doubleValue()),
+                                        (String)document.getData().get("full_name"),
+                                        (String)document.getData().get("user_name"),
+                                        (boolean)document.getData().get("isFriend"),
+                                        (boolean)document.getData().get("iRequested"),
+                                        (boolean)document.getData().get("theyRequested"),
+                                        (boolean)document.getData().get("isFamily"),
+                                        (boolean)document.getData().get("isBlocked"),
+                                        (boolean)document.getData().get("isIncognito"),
+                                        (boolean)document.getData().get("hasMeBlocked"),
+                                        (Date) document.getData().get("lastSeen"),
+                                        (String)document.getData().get("uid"),
+                                        (String)document.getData().get("profilePicURL"));
+                                NavigationBarActivity.this.getmFriendsList().add(f);
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
+    }
+
+    public void showSnackBar(String text){
+        Snackbar mSnack = Snackbar.make(getCurrentFocus(), text, Snackbar.LENGTH_INDEFINITE)
+                .setAction("Action", null);
+        //mSnack.setAction("Button", new MyButtonListener());
+        mSnack.show();
     }
 }

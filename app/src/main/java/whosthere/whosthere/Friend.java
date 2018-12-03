@@ -10,6 +10,14 @@ import android.util.Log;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.annotations.Nullable;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -25,7 +33,11 @@ import java.util.Date;
 public class Friend implements Serializable{
 
     private static final long serialVersionUID = 1L;
+    private static final String TAG = "Friend";
 
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore mDatabase;
+    private FirebaseUser mUser;
     //private LatLng location;
     private double lat;
     private double lng;
@@ -95,6 +107,7 @@ public class Friend implements Serializable{
         this.hasMeBlocked = hasMeBlocked;
         this.isIncognito = isIncognito;
 
+
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
         //Uri pathURI = storageRef.child("profilePics/default_avatar.png").getDownloadUrl();
@@ -116,6 +129,60 @@ public class Friend implements Serializable{
         });
 
 
+        this.mAuth = FirebaseAuth.getInstance();
+        this.mDatabase = FirebaseFirestore.getInstance();
+        this.mUser = mAuth.getCurrentUser();
+
+
+        mDatabase.collection("users").document(uid).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    //Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    Friend.this.isIncognito = (boolean)snapshot.getData().get("isIncognito");
+                    Friend.this.lat = ((Long)snapshot.getData().get("lat")).doubleValue();
+                    Friend.this.lng = ((Long)snapshot.getData().get("lng")).doubleValue();
+                    Friend.this.profilePicURL = (String)snapshot.getData().get("profilePicURL");
+
+                    Log.d(TAG, "Current data: " + snapshot.getData());
+                } else {
+                    //Log.d(TAG, "Current data: null");
+                }
+            }
+        });
+
+
+        mDatabase.collection("users").document(mUser.getUid()).collection("friends").document(uid).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    //Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    Friend.this.hasMeBlocked = (boolean) snapshot.getData().get("hasMeBlocked");
+                    //Friend.this.iRequested = (boolean) snapshot.getData().get("hasMeBlocked");
+                    Friend.this.isBlocked = (boolean) snapshot.getData().get("isBlocked");
+                    Friend.this.isFamily = (boolean) snapshot.getData().get("isFamily");
+                    //Friend.this.isIncognito = (boolean) snapshot.getData().get("isIncognito");
+                    Friend.this.lastSeen = (Date) snapshot.getData().get("lastSeen");
+                    //Friend.this.lat = ((Long) snapshot.getData().get("lat")).doubleValue();
+                   // Friend.this.lng = ((Long) snapshot.getData().get("lat")).doubleValue();
+
+
+                    Log.d(TAG, "Current data: " + snapshot.getData());
+                } else {
+                    //Log.d(TAG, "Current data: null");
+                }
+            }
+        });
 
     }
 
