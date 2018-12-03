@@ -16,6 +16,32 @@
                             <entry key="actionbar">
                               <value>
                                 <PersistentState>
+                                  <option name="children">
+                                    <map>
+                                      <entry key="clipartAsset">
+                                        <value>
+                                          <PersistentState>
+                                            <option name="values">
+                                              <map>
+                                                <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/device/ic_access_time_black_24dp.xml" />
+                                              </map>
+                                            </option>
+                                          </PersistentState>
+                                        </value>
+                                      </entry>
+                                    </map>
+                                  </option>
+            <PersistentState>
+              <option name="children">
+                <map>
+                  <entry key="imageAssetPanel">
+                    <value>
+                      <PersistentState>
+                        <option name="children">
+                          <map>
+                            <entry key="actionbar">
+                              <value>
+                                <PersistentState>
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
@@ -87,6 +113,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
+                                      <entry key="outputName" value="ic_request_sent" />
                                       <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/social/ic_people_outline_black_24dp.xml" />
                                     </map>
                                   </option>
@@ -97,6 +124,7 @@
                         </option>
                         <option name="values">
                           <map>
+                            <entry key="outputIconType" value="ACTIONBAR" />
                             <entry key="outputName" value="ic_people" />
                             <entry key="sourceFile" value="C:\Users\John Nguyen" />
                           </map>

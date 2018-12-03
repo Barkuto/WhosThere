@@ -10,13 +10,17 @@ import android.view.View;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.content.Context;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class profile_page_arthur extends AppCompatActivity {
     Switch simpleSwitch;
     Button setting, logout;
     private FirebaseAuth mAuth;
+    private Friend me;
     int share=1;
     protected Context mContext = this;
     @Override
@@ -44,6 +48,32 @@ public class profile_page_arthur extends AppCompatActivity {
 
         });
 
+        //this.me = (Friend)getIntent().getExtras().get("me");
+
+        me = new Friend();
+        me.setFullName((String)getIntent().getExtras().get("meName"));
+        me.setUserName((String)getIntent().getExtras().get("meUserName"));
+        me.setIncognito((boolean)getIntent().getExtras().get("meIncognito"));
+
+        if(me.getProfilePic() == null) {
+            DownloadProfilePicTask pdt = new DownloadProfilePicTask(me, (CircleImageView)findViewById(R.id.my_profile_pic));
+
+            pdt.execute(me); //is this correct?
+        } else {
+            ((CircleImageView)findViewById(R.id.my_profile_pic)).setImageBitmap(me.getProfilePic());
+        }
+
+        ((TextView)findViewById(R.id.account_name)).setText(me.getUserName());
+        ((TextView)findViewById(R.id.real_name)).setText(me.getFullName());
+        ((Switch)findViewById(R.id.simpleSwitch)).setChecked(me.isIncognito());
+
+        ((Switch)findViewById(R.id.simpleSwitch)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                profile_page_arthur.this.me.setIncognito(isChecked);
+            }
+        });
+
 
         setting.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,6 +97,8 @@ public class profile_page_arthur extends AppCompatActivity {
                 //TODO--already clean the setting data, need to back to log in page
             }
         });
+
+
 
     }
 }
