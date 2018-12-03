@@ -1,6 +1,6 @@
 package whosthere.whosthere;
 
-
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Location;
@@ -24,6 +24,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
@@ -80,7 +81,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         try {
             // Customise the styling of the base map using a JSON object defined
             // in a raw resource file.
-            boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.style_json_retro));
+            boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.style_json_bluegreen));
+            //boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.style_json_retro));
             //boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(getActivity(), R.raw.style_json_aubergine));
 
             if (!success) {
@@ -89,6 +91,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         } catch (Resources.NotFoundException e) {
             Log.e(TAG, "Can't find style. Error: ", e);
         }
+
+        mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(-37.813, 144.962))
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
 
         // Set custom window for map location marker
         if (mMap != null) {
@@ -160,11 +166,11 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         try {
             if (mLocationPermissionGranted) {
-                Task location = mFusedLocationProviderClient.getLastLocation();
+                final Task location = mFusedLocationProviderClient.getLastLocation();
                 location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
-                        if (task.isSuccessful()) {
+                        if (task.isSuccessful() && location != null) {
                             Log.d(TAG, "Location was found!");
                             Location currentLocation = (Location) task.getResult();
                             myLocation = currentLocation;
@@ -237,13 +243,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-
-
-
-
-
-
-
     private void updateFriendsList() {
 /*        friendList = new ArrayList<>();
 
@@ -278,6 +277,5 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         double lat = myLocation.getLatitude();
         double lng = myLocation.getLongitude();
     }
-
 
 }

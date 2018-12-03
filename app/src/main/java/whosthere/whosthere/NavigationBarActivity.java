@@ -1,13 +1,16 @@
 package whosthere.whosthere;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -19,7 +22,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -31,7 +33,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 public class NavigationBarActivity extends AppCompatActivity
@@ -61,14 +62,15 @@ public class NavigationBarActivity extends AppCompatActivity
         this.mDatabase = FirebaseFirestore.getInstance();
         this.mUser = mAuth.getCurrentUser();
         this.mFriendsList = new ArrayList<>();
-        FloatingActionButton fab = findViewById(R.id.fab);
+
+        /*FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Hello, World", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
+        });*/
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -84,8 +86,6 @@ public class NavigationBarActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction().replace(R.id.mainLayout, mapsFragment).commit();
             navigationView.getMenu().getItem(0).setChecked(true);
         }
-
-
 
         this.mUser = mAuth.getCurrentUser();
         DocumentReference docRef = mDatabase.collection("users").document(/*mUser.getUid()*/ "fahodayi");
@@ -131,13 +131,37 @@ public class NavigationBarActivity extends AppCompatActivity
             }
         });
 
+        startService(new Intent(this, LocationService.class));
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        //Log.e("Location: ", "ENTERED ONRECEIVE");
 
+                        String latitude = intent.getStringExtra(LocationService.EXTRA_LATITUDE);
+                        String longitude = intent.getStringExtra(LocationService.EXTRA_LONGITUDE);
+
+                        if (latitude != null && longitude != null) {
+                            //Log.e("Location: ", "(" + latitude + ", " + longitude + ")");
+                            Log.e(TAG, "onLocationChanged: (" + latitude + ", " + longitude + ")");
+
+
+                        }
+                    }
+                }, new IntentFilter(LocationService.ACTION_LOCATION_BROADCAST)
+        );
     }
 
     @Override
     protected void onResume() {
+        startService(new Intent(this, LocationService.class));
         super.onResume();
+    }
 
+    @Override
+    protected void onPause() {
+        startService(new Intent(this, LocationService.class));
+        super.onPause();
     }
 
     @Override
@@ -146,7 +170,7 @@ public class NavigationBarActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            //super.onBackPressed();
         }
     }
 
@@ -177,6 +201,7 @@ public class NavigationBarActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        startService(new Intent(this, LocationService.class));
 
         if (id == R.id.map) {
             MapsFragment mapsFragment = new MapsFragment();
@@ -195,12 +220,9 @@ public class NavigationBarActivity extends AppCompatActivity
             manager.beginTransaction().replace(R.id.mainLayout, mapsFragment).commit();
 
         } else if (id == R.id.settings) {
-//            MapsFragment mapsFragment = new MapsFragment();
-//            FragmentManager manager = getSupportFragmentManager();
-//            manager.beginTransaction().replace(R.id.mainLayout, mapsFragment).commit();
-
-            Intent goToProfile = new Intent(NavigationBarActivity.this, profile_page_arthur.class);
-            startActivity(goToProfile);
+            MapsFragment mapsFragment = new MapsFragment();
+            FragmentManager manager = getSupportFragmentManager();
+            manager.beginTransaction().replace(R.id.mainLayout, mapsFragment).commit();
 
         } else if (id == R.id.about) {
             MapsFragment mapsFragment = new MapsFragment();
