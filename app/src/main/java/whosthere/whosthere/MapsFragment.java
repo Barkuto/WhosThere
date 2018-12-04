@@ -35,8 +35,14 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
@@ -47,6 +53,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private boolean mLocationPermissionGranted = false;
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private static final float DEFAULT_ZOOM = 15f;
+
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore mDatabase;
+    private FirebaseUser mUser;
 
     private Location myLocation;
     private FusedLocationProviderClient mFusedLocationProviderClient;
@@ -61,11 +71,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         // Required empty public constructor
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_maps, container, false);
 
-
+        this.mAuth = FirebaseAuth.getInstance();
+        this.mDatabase = FirebaseFirestore.getInstance();
+        this.mUser = mAuth.getCurrentUser();
         /*mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
 
         locationRequest = LocationRequest.create();
@@ -216,6 +229,14 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                             Location currentLocation = (Location) task.getResult();
                             if(currentLocation != null){
                                 myLocation = currentLocation;
+
+
+                                Map<String, Object> data = new HashMap<>();
+                                data.put("lat", currentLocation.getLatitude());
+                                data.put("lng", currentLocation.getLongitude());
+                                mDatabase.collection("users").document(mUser.getUid()).set(data, SetOptions.merge());
+
+
                                 moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM);
                                 updateFriendsList();
                             } else {

@@ -74,6 +74,8 @@ public class NavigationBarActivity extends AppCompatActivity
     private PendingIntent mNotificationReceiverPendingIntent;
     private static final long JITTER = 1000L;
     private static final long REPEAT_INTERVAL = 5000;
+    AlarmManager alarmManager;
+    PendingIntent pi;
 
     private final Friend me = new Friend();
 
@@ -304,6 +306,9 @@ public class NavigationBarActivity extends AppCompatActivity
             }
         });*/
 
+        initializeAlarmManager();
+        //go();
+
 
         SharedPreferences myPrefs = PreferenceManager.getDefaultSharedPreferences(NavigationBarActivity.this);
         //int interval = Integer.parseInt(myPrefs.getString("TEXT", "3600000"));
@@ -326,10 +331,10 @@ public class NavigationBarActivity extends AppCompatActivity
                             //Log.e("Location: ", "(" + latitude + ", " + longitude + ")");
                             Log.e(TAG, "onLocationChanged: (" + latitude + ", " + longitude + ")");
 
-                            Map<String, Object> data = new HashMap<>();
-                            data.put("lat", latitude);
-                            data.put("lng", longitude);
-                            mDatabase.collection("users").document("").set(data, SetOptions.merge());
+                           /* Map<String, Object> data = new HashMap<>();
+                            data.put("lat", Long.parseLong(latitude));
+                            data.put("lng", Long.parseLong(longitude));
+                            mDatabase.collection("users").document(mUser.getUid()).set(data, SetOptions.merge());*/
                         }
                     }
                 }, new IntentFilter(LocationService.ACTION_LOCATION_BROADCAST)
@@ -360,6 +365,16 @@ public class NavigationBarActivity extends AppCompatActivity
 
 
     }
+
+    private void initializeAlarmManager() {
+        Intent intent=new Intent(this,MyReceiver.class);
+        pi= PendingIntent.getBroadcast(this,0,intent,0);
+        alarmManager= (AlarmManager) this.getSystemService(ALARM_SERVICE);
+    }
+
+
+
+
 
     @Override
     protected void onResume() {
