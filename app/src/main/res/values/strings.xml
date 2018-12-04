@@ -125,6 +125,7 @@
     <string name="distribution_set">Do Not Disturb Mode</string>
     <string name="setting">setting</string>
     <string name="logout">Log out</string>
+    <string name="option">Option</string>
 
     <string-array name="distance">
         <item>1 mile</item>
@@ -150,6 +151,13 @@
         <item>30</item>
         <item>60</item>
     </string-array>
+
+    <string-array name="friend_option">
+        <item>Set Family</item>
+        <item>Remove Friend</item>
+        <item>Block</item>
+    </string-array>
+
 
 
     <!-- Drawer -->
