@@ -207,6 +207,9 @@ public class Friend implements Serializable{
         if(location != null){
             this.lat = location.latitude;
             this.lng = location.longitude;
+        } else {
+            this.lat = 0.999;
+            this.lng = 0.999;
         }
         this.fullName = fullName;
         this.userName = userName;

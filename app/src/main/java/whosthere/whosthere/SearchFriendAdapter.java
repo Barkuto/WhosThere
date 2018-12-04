@@ -194,8 +194,8 @@ public class SearchFriendAdapter extends ArrayAdapter<Friend>  implements Filter
                 modUser.put("isFriend", false);
                 modUser.put("isIncognito", current.isIncognito());
                 modUser.put("lastSeen", Timestamp.now());
-                modUser.put("lat", 0);
-                modUser.put("lng", 0);
+                modUser.put("lat", new Double(0.0555));
+                modUser.put("lng", new Double(0.0555));
                 modUser.put("profilePicURL", current.getProfilePicURL());
                 modUser.put("theyRequested", false);
                 modUser.put("uid", current.getUid());
@@ -228,8 +228,8 @@ public class SearchFriendAdapter extends ArrayAdapter<Friend>  implements Filter
                 modUser2.put("isFriend", false);
                 modUser2.put("isIncognito", meReference.isIncognito());
                 modUser2.put("lastSeen", Timestamp.now());
-                modUser2.put("lat", 0);
-                modUser2.put("lng", 0);
+                modUser2.put("lat", new Double(0.0555));
+                modUser2.put("lng", new Double(0.0555));
                 modUser2.put("profilePicURL", meReference.getProfilePicURL());
                 modUser2.put("uid", mUser.getUid());
                 modUser2.put("user_name", meReference.getUserName());
