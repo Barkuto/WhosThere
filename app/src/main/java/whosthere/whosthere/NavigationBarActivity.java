@@ -71,38 +71,38 @@ public class NavigationBarActivity extends AppCompatActivity
     private FirebaseFirestore mDatabase;
     private FirebaseUser mUser;
     private AlarmManager mAlarmManager;
-    private static final long JITTER = 1000L;
-    private static final long REPEAT_INTERVAL = 5000;
+                        private static final long JITTER = 1000L;
+                        private static final long REPEAT_INTERVAL = 5000;
 
-    private PendingIntent pendingIntent;
+                        private PendingIntent pendingIntent;
 
-    private final Friend me = new Friend();
+                        private final Friend me = new Friend();
 
-    public ArrayList<Friend> getmFriendsList() {
-        //this.pullFriendUpdates();
-        return mFriendsList;
-    }
-
-    public Friend getMe() {
-        return me;
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_navigation_bar);
-
-        FirebaseInstanceId.getInstance().getInstanceId()
-                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "getInstanceId failed", task.getException());
-                            return;
+                        public ArrayList<Friend> getmFriendsList() {
+                            //this.pullFriendUpdates();
+                            return mFriendsList;
                         }
 
-                        // Get new Instance ID token
-                        String token = task.getResult().getToken();
+                        public Friend getMe() {
+                            return me;
+                        }
+
+                        @Override
+                        protected void onCreate(Bundle savedInstanceState) {
+                            super.onCreate(savedInstanceState);
+                            setContentView(R.layout.activity_navigation_bar);
+
+                            FirebaseInstanceId.getInstance().getInstanceId()
+                                    .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                                            if (!task.isSuccessful()) {
+                                                Log.w(TAG, "getInstanceId failed", task.getException());
+                                                return;
+                                            }
+
+                                            // Get new Instance ID token
+                                            String token = task.getResult().getToken();
 
                         // Log and toast
                         //String msg = getString(R.string.msg_token_fmt, token);
