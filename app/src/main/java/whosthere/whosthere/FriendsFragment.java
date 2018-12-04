@@ -33,8 +33,6 @@ public class FriendsFragment extends Fragment {
         this.mLayoutInflater = LayoutInflater.from(getContext());
 
         mAdapter = new FriendAdapter(getActivity(), mPeopleList);
-
-
     }
 
     @Override
