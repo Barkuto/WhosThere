@@ -26,6 +26,9 @@
             </intent-filter>
         </activity>-->
 
+        <activity android:name=".arthur_test">
+        </activity>
+
         <activity android:name=".profile_page_arthur">
         </activity>
         <service android:name=".LocationService" />
@@ -83,6 +86,7 @@
         <activity
             android:name=".AboutActivity"
             android:label="About"/>
+
 
 
     </application>

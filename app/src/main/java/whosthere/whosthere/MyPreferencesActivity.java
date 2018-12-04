@@ -58,11 +58,11 @@ public class MyPreferencesActivity extends PreferenceActivity {
             getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
         }
 
+        @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             SharedPreferences myPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
             SharedPreferences.Editor editor = myPrefs.edit();
             switch(key){
-
 
                 //this option is used to determine a user wanna be interrupt by botification or not
                 //if it is checked then we allow app send notification
@@ -121,10 +121,7 @@ public class MyPreferencesActivity extends PreferenceActivity {
                         Toast.makeText(getActivity(),test,Toast.LENGTH_LONG).show();
                     }
                     break;
-
-
             }
         }
-
     }
 }
