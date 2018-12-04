@@ -92,6 +92,7 @@ public class Friend implements Serializable{
                         Friend.this.setLng(((Double)document.get("lng")).doubleValue());
                         Friend.this.setProfilePicURL((String)document.get("profilePicURL"));
                         Friend.this.setUserName((String)document.get("user_name"));
+                        Friend.this.updateFriendsDatabase();
                     } else {
                         Log.d(TAG, "No such document");
                     }
@@ -165,6 +166,8 @@ public class Friend implements Serializable{
                     Friend.this.lastSeen = (Date) snapshot.getData().get("lastSeen");
                     //Friend.this.lat = ((Long) snapshot.getData().get("lat")).doubleValue();
                     // Friend.this.lng = ((Long) snapshot.getData().get("lat")).doubleValue();
+
+
 
 
                     Log.d(TAG, "Current data: " + snapshot.getData());
@@ -266,6 +269,8 @@ public class Friend implements Serializable{
                 } else {
                     //Log.d(TAG, "Current data: null");
                 }
+
+
             }
         });
 
@@ -490,6 +495,19 @@ public class Friend implements Serializable{
             return true;
         } else {
             return false;
+        }
+    }
+
+
+    public void updateFriendsDatabase(){
+        if(mUser.getUid() != uid){
+            Map<String, Object> data = new HashMap<>();
+            data.put("lat", getLat());
+            data.put("lng", getLng());
+
+            mDatabase.collection("users").document(mUser.getUid()).collection("friends").document(uid)
+                    .set(data, SetOptions.merge());
+
         }
     }
 }

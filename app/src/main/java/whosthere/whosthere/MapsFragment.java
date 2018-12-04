@@ -26,6 +26,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -35,8 +36,16 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
@@ -47,7 +56,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private boolean mLocationPermissionGranted = false;
     public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private static final float DEFAULT_ZOOM = 15f;
-
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore mDatabase;
+    private FirebaseUser mUser;
     private Location myLocation;
     private FusedLocationProviderClient mFusedLocationProviderClient;
 
@@ -174,6 +185,30 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 }
             });
         }
+        this.mAuth = FirebaseAuth.getInstance();
+        this.mDatabase = FirebaseFirestore.getInstance();
+        this.mUser = mAuth.getCurrentUser();
+
+        mDatabase.collection("users").document(mUser.getUid()).collection("friends")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w(TAG, "Listen failed.", e);
+                            return;
+                        }
+
+                        /*List<String> cities = new ArrayList<>();
+                        for (QueryDocumentSnapshot doc : value) {
+                            if (doc.get("name") != null) {
+                                cities.add(doc.getString("name"));
+                            }
+                        }
+                        Log.d(TAG, "Current cites in CA: " + cities);*/
+                      //  MapsFragment.this.updateFriendsList();
+                    }
+                });
 
 
         /*LatLng test = new LatLng(38.989886, -76.936306);
@@ -186,7 +221,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         updateLocationUI();
 
         // Get the current location of the device and set the position of the map.
-        getDeviceLocation();
+        this.getDeviceLocation();
     }
 
 
@@ -203,6 +238,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
      * A mtoast message will be printed if not.
      */
     private void getDeviceLocation() {
+        Log.w("TAG", "FAHO enter device location");
+
         Log.d(TAG, "getDeviceLocation called: getting the user's current location");
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         try {
@@ -217,6 +254,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                             if(currentLocation != null){
                                 myLocation = currentLocation;
                                 moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM);
+                                Log.w("TAG", "FAHO about to update friends list");
+
                                 updateFriendsList();
                             } else {
 
@@ -306,6 +345,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         friendList.add(new Friend(new LatLng(40.772290, -73.980208), "Damian", "Wayne", "Batman"));
         friendList.add(new Friend(new LatLng(37.421716, -122.084344),"Selina", "Kyle", "Catwoman"));
         friendList.add(new Friend(new LatLng(42.946947, -122.097894),"Katherine", "Kane", "Batwoman"));*/
+
+        friendList = ((NavigationBarActivity)getActivity()).getmFriendsList();
+        Log.w("TAG", "FAHO friend list size" + friendList.size());
 
         mapFriends(friendList);
     }
