@@ -8,16 +8,20 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.annotations.Nullable;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -28,6 +32,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class Friend implements Serializable{
@@ -67,7 +73,107 @@ public class Friend implements Serializable{
 
 
     public Friend(){
-        //empty constructor
+        this.mAuth = FirebaseAuth.getInstance();
+        this.mDatabase = FirebaseFirestore.getInstance();
+        this.mUser = mAuth.getCurrentUser();
+        this.setUid(Friend.this.mUser.getUid());
+
+        DocumentReference docRef2 = mDatabase.collection("users").document(mUser.getUid());
+        docRef2.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Friend.this.setUid(Friend.this.mUser.getUid());
+                        Friend.this.setFullName((String)document.get("full_name"));
+                        Friend.this.setIncognito((boolean)document.get("isIncognito"));
+                        Friend.this.setLat(((Double)document.get("lat")).doubleValue());
+                        Friend.this.setLng(((Double)document.get("lng")).doubleValue());
+                        Friend.this.setProfilePicURL((String)document.get("profilePicURL"));
+                        Friend.this.setUserName((String)document.get("user_name"));
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
+
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+        //Uri pathURI = storageRef.child("profilePics/default_avatar.png").getDownloadUrl();
+        storageRef.child("profilePics/default_avatar.png").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+
+                //DownloadProfilePicTask pdt = new DownloadProfilePicTask(Friend.this);
+                //pdt.execute(uri.toString()); //is this correct?
+                Friend.this.profilePicURL = uri.toString();
+
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle any errors
+            }
+        });
+
+
+
+        mDatabase.collection("users").document(uid).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    //Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    Friend.this.isIncognito = (boolean)snapshot.getData().get("isIncognito");
+                    Friend.this.lat = ((Double)snapshot.getData().get("lat")).doubleValue();
+                    Friend.this.lng = ((Double)snapshot.getData().get("lng")).doubleValue();
+                    Friend.this.profilePicURL = (String)snapshot.getData().get("profilePicURL");
+
+                    Log.d(TAG, "Current data: " + snapshot.getData());
+                } else {
+                    //Log.d(TAG, "Current data: null");
+                }
+            }
+        });
+
+
+        mDatabase.collection("users").document(mUser.getUid()).collection("friends").document(uid).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    //Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    Friend.this.hasMeBlocked = (boolean) snapshot.getData().get("hasMeBlocked");
+                    //Friend.this.iRequested = (boolean) snapshot.getData().get("hasMeBlocked");
+                    Friend.this.isBlocked = (boolean) snapshot.getData().get("isBlocked");
+                    Friend.this.isFamily = (boolean) snapshot.getData().get("isFamily");
+                    //Friend.this.isIncognito = (boolean) snapshot.getData().get("isIncognito");
+                    Friend.this.lastSeen = (Date) snapshot.getData().get("lastSeen");
+                    //Friend.this.lat = ((Long) snapshot.getData().get("lat")).doubleValue();
+                    // Friend.this.lng = ((Long) snapshot.getData().get("lat")).doubleValue();
+
+
+                    Log.d(TAG, "Current data: " + snapshot.getData());
+                } else {
+                    //Log.d(TAG, "Current data: null");
+                }
+            }
+        });
+
     }
     public Friend(LatLng location, String fullName, String userName, boolean isMyFriend) {
         if(location != null){
@@ -77,6 +183,9 @@ public class Friend implements Serializable{
         this.fullName = fullName;
         this.userName = userName;
         this.isMyFriend = isMyFriend;
+
+
+
     }
     public Friend(LatLng location, String fullName, String userName,
                   boolean isMyFriend,
@@ -90,9 +199,17 @@ public class Friend implements Serializable{
                   String uid,
                   String profilePicURL) {
 
+
+        this.mAuth = FirebaseAuth.getInstance();
+        this.mDatabase = FirebaseFirestore.getInstance();
+        this.mUser = mAuth.getCurrentUser();
+
         if(location != null){
             this.lat = location.latitude;
             this.lng = location.longitude;
+        } else {
+            this.lat = 0.999;
+            this.lng = 0.999;
         }
         this.fullName = fullName;
         this.userName = userName;
@@ -129,10 +246,6 @@ public class Friend implements Serializable{
         });
 
 
-        this.mAuth = FirebaseAuth.getInstance();
-        this.mDatabase = FirebaseFirestore.getInstance();
-        this.mUser = mAuth.getCurrentUser();
-
 
         mDatabase.collection("users").document(uid).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -145,8 +258,8 @@ public class Friend implements Serializable{
 
                 if (snapshot != null && snapshot.exists()) {
                     Friend.this.isIncognito = (boolean)snapshot.getData().get("isIncognito");
-                    Friend.this.lat = ((Long)snapshot.getData().get("lat")).doubleValue();
-                    Friend.this.lng = ((Long)snapshot.getData().get("lng")).doubleValue();
+                    Friend.this.lat = ((Double)snapshot.getData().get("lat")).doubleValue();
+                    Friend.this.lng = ((Double)snapshot.getData().get("lng")).doubleValue();
                     Friend.this.profilePicURL = (String)snapshot.getData().get("profilePicURL");
 
                     Log.d(TAG, "Current data: " + snapshot.getData());
@@ -221,6 +334,14 @@ public class Friend implements Serializable{
 
     public void setMyFriend(boolean myFriend) {
         isMyFriend = myFriend;
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("isFriend", myFriend);
+        if(!mUser.getUid().equals(uid)) {
+
+            mDatabase.collection("users").document(mUser.getUid()).collection("friends").document(this.uid)
+                    .set(data, SetOptions.merge());
+        }
     }
 
     public Bitmap getProfilePic() {
@@ -233,6 +354,13 @@ public class Friend implements Serializable{
 
     public void setProfilePicURL(String profilePicURL) {
         this.profilePicURL = profilePicURL;
+        Map<String, Object> data = new HashMap<>();
+        data.put("profilePicURL", profilePicURL);
+
+        if(!mUser.getUid().equals(uid)) {
+            mDatabase.collection("users").document(mUser.getUid()).collection("friends").document(this.uid)
+                    .set(data, SetOptions.merge());
+        }
     }
 
     public String getProfilePicURL() {
@@ -285,6 +413,14 @@ public class Friend implements Serializable{
 
     public void setFamily(boolean family) {
         isFamily = family;
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("isFamily", family);
+        if(!mUser.getUid().equals(uid)) {
+
+            mDatabase.collection("users").document(mUser.getUid()).collection("friends").document(this.uid)
+                    .set(data, SetOptions.merge());
+        }
     }
 
     public boolean isBlocked() {
@@ -293,6 +429,14 @@ public class Friend implements Serializable{
 
     public void setBlocked(boolean blocked) {
         isBlocked = blocked;
+        Map<String, Object> data = new HashMap<>();
+        data.put("isBlocked", blocked);
+
+        if(!mUser.getUid().equals(uid)) {
+
+            mDatabase.collection("users").document(mUser.getUid()).collection("friends").document(this.uid)
+                    .set(data, SetOptions.merge());
+        }
     }
 
     public boolean isHasMeBlocked() {
@@ -301,6 +445,7 @@ public class Friend implements Serializable{
 
     public void setHasMeBlocked(boolean hasMeBlocked) {
         this.hasMeBlocked = hasMeBlocked;
+
     }
 
     public boolean isIncognito() {
@@ -309,6 +454,17 @@ public class Friend implements Serializable{
 
     public void setIncognito(boolean incognito) {
         isIncognito = incognito;
+        Map<String, Object> data = new HashMap<>();
+        data.put("isIncognito", incognito);
+        if(!mUser.getUid().equals(uid)) {
+
+            mDatabase.collection("users").document(mUser.getUid()).collection("friends").document(this.uid)
+                    .set(data, SetOptions.merge());
+        } else {
+
+            mDatabase.collection("users").document(mUser.getUid())
+                    .set(data, SetOptions.merge());
+        }
     }
 
     public Date getLastSeen() {

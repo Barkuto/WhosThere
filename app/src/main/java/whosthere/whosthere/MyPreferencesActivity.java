@@ -8,11 +8,25 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class MyPreferencesActivity extends PreferenceActivity {
+
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore mDatabase;
+    private FirebaseUser mUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        this.mAuth = FirebaseAuth.getInstance();
+        this.mDatabase = FirebaseFirestore.getInstance();
+        this.mUser = mAuth.getCurrentUser();
         getFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragment()).commit();
     }
 
@@ -44,11 +58,11 @@ public class MyPreferencesActivity extends PreferenceActivity {
             getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
         }
 
+        @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             SharedPreferences myPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
             SharedPreferences.Editor editor = myPrefs.edit();
             switch(key){
-
 
                 //this option is used to determine a user wanna be interrupt by botification or not
                 //if it is checked then we allow app send notification
@@ -56,9 +70,9 @@ public class MyPreferencesActivity extends PreferenceActivity {
                 case "distribution_set":
                     boolean check = sharedPreferences.getBoolean(key,true);
                     if(check == false){
-                        editor.putString(key, "1").apply();
+                        editor.putString("SWITCH", "1").apply();
                     } else {
-                        editor.putString(key,"0").apply();
+                        editor.putString("SWITCH","0").apply();
                     }
                     break;
 
@@ -70,13 +84,19 @@ public class MyPreferencesActivity extends PreferenceActivity {
                 case "distance_key":
                     String distance = sharedPreferences.getString(key,"");
                     if(distance==null){
-                        editor.putString(key, "1").apply();
+                        editor.putString("DIST", "1").apply();
                         String test = myPrefs.getString(key,"");
                         Toast.makeText(getActivity(),test,Toast.LENGTH_LONG).show();
                     } else {
-                        editor.putString(key, distance).apply();
+                        editor.putString("DIST", distance).apply();
                         String test = myPrefs.getString(key,"");
                         Toast.makeText(getActivity(),test,Toast.LENGTH_LONG).show();
+
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("radius", Double.parseDouble(distance));
+
+                        ((MyPreferencesActivity)getActivity()).mDatabase.collection("users").document(((MyPreferencesActivity)getActivity()).mUser.getUid())
+                                .set(data, SetOptions.merge());
                     }
 
                     break;
@@ -92,19 +112,16 @@ public class MyPreferencesActivity extends PreferenceActivity {
                 case "frequency_choice":
                     String freq = sharedPreferences.getString(key,"");
                     if(freq == null){
-                        editor.putString(key,"1").apply();
+                        editor.putString("FREQ","3600000").apply();
                         String test = myPrefs.getString(key,"");
                         Toast.makeText(getActivity(),test,Toast.LENGTH_LONG).show();
                     } else {
-                        editor.putString(key,freq).apply();
+                        editor.putString("FREQ",freq).apply();
                         String test = myPrefs.getString(key,"");
                         Toast.makeText(getActivity(),test,Toast.LENGTH_LONG).show();
                     }
                     break;
-
-
             }
         }
-
     }
 }

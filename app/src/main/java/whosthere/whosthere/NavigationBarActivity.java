@@ -8,7 +8,9 @@ import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -25,8 +27,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -48,11 +52,14 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class NavigationBarActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -297,12 +304,20 @@ public class NavigationBarActivity extends AppCompatActivity
             }
         });*/
 
-        startService(new Intent(this, LocationService.class));
+
+        SharedPreferences myPrefs = PreferenceManager.getDefaultSharedPreferences(NavigationBarActivity.this);
+        //int interval = Integer.parseInt(myPrefs.getString("TEXT", "3600000"));
+        int interval = Integer.parseInt(myPrefs.getString("FREQ", "3600000"));
+        Intent serviceIntent = new Intent(this, LocationService.class);
+        serviceIntent.putExtra("interval", interval);
+        startService(serviceIntent);
+        Toast.makeText(this, myPrefs.getString("FREQ", "1"), Toast.LENGTH_SHORT).show();
+
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
-                        //Log.e("Location: ", "ENTERED ONRECEIVE");
+                        Log.e("Location: ", "ENTERED ONRECEIVE");
 
                         String latitude = intent.getStringExtra(LocationService.EXTRA_LATITUDE);
                         String longitude = intent.getStringExtra(LocationService.EXTRA_LONGITUDE);
@@ -310,6 +325,11 @@ public class NavigationBarActivity extends AppCompatActivity
                         if (latitude != null && longitude != null) {
                             //Log.e("Location: ", "(" + latitude + ", " + longitude + ")");
                             Log.e(TAG, "onLocationChanged: (" + latitude + ", " + longitude + ")");
+
+                            Map<String, Object> data = new HashMap<>();
+                            data.put("lat", Double.parseDouble(latitude));
+                            data.put("lng", Double.parseDouble(longitude));
+                            mDatabase.collection("users").document(mUser.getUid()).set(data, SetOptions.merge());
                         }
                     }
                 }, new IntentFilter(LocationService.ACTION_LOCATION_BROADCAST)
@@ -343,8 +363,18 @@ public class NavigationBarActivity extends AppCompatActivity
 
     @Override
     protected void onResume() {
-        startService(new Intent(this, LocationService.class));
+        SharedPreferences myPrefs = PreferenceManager.getDefaultSharedPreferences(NavigationBarActivity.this);
+        //int interval = Integer.parseInt(myPrefs.getString("TEXT", "3600000"));
+        int interval = Integer.parseInt(myPrefs.getString("FREQ", "3600000"));
+        Intent serviceIntent = new Intent(this, LocationService.class);
+        serviceIntent.putExtra("interval", interval);
+        startService(serviceIntent);
+        //Toast.makeText(this, myPrefs.getString("FREQ", "1"), Toast.LENGTH_SHORT).show();
+
         super.onResume();
+        this.pullFriendUpdates();
+
+
     }
 
     @Override
@@ -402,6 +432,9 @@ public class NavigationBarActivity extends AppCompatActivity
 
         } else if (id == R.id.profile) {
             Intent intent = new Intent(NavigationBarActivity.this, profile_page_arthur.class);
+            intent.putExtra("meName", this.me.getFullName());
+            intent.putExtra("meUserName", this.me.getUserName());
+            intent.putExtra("meIncognito", this.me.isIncognito());
             NavigationBarActivity.this.startActivity(intent);
 
         } else if (id == R.id.settings) {
@@ -430,10 +463,11 @@ public class NavigationBarActivity extends AppCompatActivity
                     if (document.exists()) {
                         me.setFullName((String)document.get("full_name"));
                         me.setIncognito((boolean)document.get("isIncognito"));
-                        me.setLat(((Long)document.get("lat")).doubleValue());
-                        me.setLng(((Long)document.get("lng")).doubleValue());
+                        me.setLat(((Double)document.get("lat")).doubleValue());
+                        me.setLng(((Double)document.get("lng")).doubleValue());
                         me.setProfilePicURL((String)document.get("profilePicURL"));
                         me.setUserName((String)document.get("user_name"));
+                        NavigationBarActivity.this.updateViews();
                     } else {
                         Log.d(TAG, "No such document");
                     }
@@ -455,9 +489,9 @@ public class NavigationBarActivity extends AppCompatActivity
                                 }
                                 Friend f = new Friend(
                                         new LatLng(
-                                                ((Long)document.getData().get("lat")).doubleValue(),
+                                                ((Double)document.getData().get("lat")).doubleValue(),
 
-                                                ((Long)document.getData().get("lng")).doubleValue()),
+                                                ((Double)document.getData().get("lng")).doubleValue()),
                                         (String)document.getData().get("full_name"),
                                         (String)document.getData().get("user_name"),
                                         (boolean)document.getData().get("isFriend"),
@@ -478,6 +512,7 @@ public class NavigationBarActivity extends AppCompatActivity
                     }
                 });
 
+
     }
 
     public void showSnackBar(String text){
@@ -485,5 +520,19 @@ public class NavigationBarActivity extends AppCompatActivity
                 .setAction("Action", null);
         //mSnack.setAction("Button", new MyButtonListener());
         mSnack.show();
+    }
+
+
+    public void updateViews(){
+
+        if(me.getProfilePic() == null) {
+            DownloadProfilePicTask pdt = new DownloadProfilePicTask(me, (CircleImageView)findViewById(R.id.my_profile_pic));
+
+            pdt.execute(me); //is this correct?
+        } else {
+            ((CircleImageView)findViewById(R.id.my_profile_pic)).setImageBitmap(me.getProfilePic());
+        }
+
+        ((TextView)findViewById(R.id.my_name)).setText(me.getFullName());
     }
 }

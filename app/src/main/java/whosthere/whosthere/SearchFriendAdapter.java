@@ -34,6 +34,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class SearchFriendAdapter extends ArrayAdapter<Friend>  implements Filterable{
     private static final String TAG = "SearchAdapter";
 
@@ -85,7 +87,7 @@ public class SearchFriendAdapter extends ArrayAdapter<Friend>  implements Filter
         TextView distance;
         LinearLayout alreadyFriend;
         LinearLayout addFriend;
-        ImageView profilepic;
+        CircleImageView profilepic;
         LinearLayout friendRequested;
         LinearLayout friendRecevied;
     }
@@ -102,7 +104,7 @@ public class SearchFriendAdapter extends ArrayAdapter<Friend>  implements Filter
             holder.listLayout = (LinearLayout)convertView.findViewById(R.id.list_container);
             holder.friendName = (TextView) convertView.findViewById(R.id.fullname);
             holder.username = (TextView) convertView.findViewById(R.id.username);
-            holder.profilepic = (ImageView) convertView.findViewById(R.id.image);
+            holder.profilepic = (CircleImageView) convertView.findViewById(R.id.image);
             holder.distance = (TextView) convertView.findViewById(R.id.distance);
             holder.alreadyFriend = (LinearLayout) convertView.findViewById(R.id.already_friend);
             holder.addFriend = (LinearLayout) convertView.findViewById(R.id.add_friend);
@@ -192,8 +194,8 @@ public class SearchFriendAdapter extends ArrayAdapter<Friend>  implements Filter
                 modUser.put("isFriend", false);
                 modUser.put("isIncognito", current.isIncognito());
                 modUser.put("lastSeen", Timestamp.now());
-                modUser.put("lat", 0);
-                modUser.put("lng", 0);
+                modUser.put("lat", new Double(0.0555));
+                modUser.put("lng", new Double(0.0555));
                 modUser.put("profilePicURL", current.getProfilePicURL());
                 modUser.put("theyRequested", false);
                 modUser.put("uid", current.getUid());
@@ -226,8 +228,8 @@ public class SearchFriendAdapter extends ArrayAdapter<Friend>  implements Filter
                 modUser2.put("isFriend", false);
                 modUser2.put("isIncognito", meReference.isIncognito());
                 modUser2.put("lastSeen", Timestamp.now());
-                modUser2.put("lat", 0);
-                modUser2.put("lng", 0);
+                modUser2.put("lat", new Double(0.0555));
+                modUser2.put("lng", new Double(0.0555));
                 modUser2.put("profilePicURL", meReference.getProfilePicURL());
                 modUser2.put("uid", mUser.getUid());
                 modUser2.put("user_name", meReference.getUserName());

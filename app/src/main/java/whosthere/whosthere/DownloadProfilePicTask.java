@@ -14,16 +14,18 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 class DownloadProfilePicTask extends AsyncTask<Friend, Void, Bitmap> {
 
     private Exception exception;
     private HttpURLConnection mHttpUrl;
     private WeakReference<Friend> mParent;
-    private WeakReference<ImageView> mListItem;
+    private WeakReference<CircleImageView> mListItem;
 
-    public DownloadProfilePicTask(Friend parent, ImageView listItem) {
+    public DownloadProfilePicTask(Friend parent, CircleImageView listItem) {
         this.mParent = new WeakReference<Friend>(parent);
-        this.mListItem = new WeakReference<ImageView>(listItem);
+        this.mListItem = new WeakReference<CircleImageView>(listItem);
     }
 
 
@@ -68,6 +70,8 @@ class DownloadProfilePicTask extends AsyncTask<Friend, Void, Bitmap> {
 
     protected void onPostExecute(Bitmap pic) {
         mParent.get().setProfilePic(pic);
-        mListItem.get().setImageBitmap(pic);
+        if(mListItem.get() != null){
+            mListItem.get().setImageBitmap(pic);
+        }
     }
 }

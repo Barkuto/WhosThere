@@ -14,7 +14,10 @@ public class MyJobService extends JobService {
     public boolean onStartJob(JobParameters jobParameters) {
         Log.d(TAG, "Performing long running task in scheduled job");
 
-        ((NavigationBarActivity)getApplicationContext()).showSnackBar(jobParameters.getExtras().getString("Username"));
+        ((NavigationBarActivity)getApplicationContext()).showSnackBar(jobParameters.getExtras().getString("body"));
+
+        ((NavigationBarActivity)getApplicationContext()).pullFriendUpdates();
+
         return false;
     }
 

@@ -268,6 +268,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         updateLocationUI();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().setTitle("Who's There?");
+
+    }
 
     private void updateLocationUI() {
         if (mMap == null) {
