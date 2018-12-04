@@ -327,9 +327,9 @@ public class NavigationBarActivity extends AppCompatActivity
                             Log.e(TAG, "onLocationChanged: (" + latitude + ", " + longitude + ")");
 
                             Map<String, Object> data = new HashMap<>();
-                            data.put("lat", latitude);
-                            data.put("lng", longitude);
-                            mDatabase.collection("users").document("").set(data, SetOptions.merge());
+                            data.put("lat", Double.parseDouble(latitude));
+                            data.put("lng", Double.parseDouble(longitude));
+                            mDatabase.collection("users").document(mUser.getUid()).set(data, SetOptions.merge());
                         }
                     }
                 }, new IntentFilter(LocationService.ACTION_LOCATION_BROADCAST)
@@ -463,8 +463,8 @@ public class NavigationBarActivity extends AppCompatActivity
                     if (document.exists()) {
                         me.setFullName((String)document.get("full_name"));
                         me.setIncognito((boolean)document.get("isIncognito"));
-                        me.setLat(((Long)document.get("lat")).doubleValue());
-                        me.setLng(((Long)document.get("lng")).doubleValue());
+                        me.setLat(((Double)document.get("lat")).doubleValue());
+                        me.setLng(((Double)document.get("lng")).doubleValue());
                         me.setProfilePicURL((String)document.get("profilePicURL"));
                         me.setUserName((String)document.get("user_name"));
                         NavigationBarActivity.this.updateViews();
@@ -489,9 +489,9 @@ public class NavigationBarActivity extends AppCompatActivity
                                 }
                                 Friend f = new Friend(
                                         new LatLng(
-                                                ((Long)document.getData().get("lat")).doubleValue(),
+                                                ((Double)document.getData().get("lat")).doubleValue(),
 
-                                                ((Long)document.getData().get("lng")).doubleValue()),
+                                                ((Double)document.getData().get("lng")).doubleValue()),
                                         (String)document.getData().get("full_name"),
                                         (String)document.getData().get("user_name"),
                                         (boolean)document.getData().get("isFriend"),
