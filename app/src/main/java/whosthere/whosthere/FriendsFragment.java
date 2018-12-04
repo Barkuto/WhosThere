@@ -102,4 +102,17 @@ public class FriendsFragment extends Fragment {
         super.onDetach();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        ((FloatingActionButton) getView().findViewById(R.id.fab)).setVisibility(View.GONE);
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((FloatingActionButton) getView().findViewById(R.id.fab)).setVisibility(View.VISIBLE);
+
+    }
 }

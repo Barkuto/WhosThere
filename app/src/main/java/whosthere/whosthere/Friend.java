@@ -88,8 +88,8 @@ public class Friend implements Serializable{
                         Friend.this.setUid(Friend.this.mUser.getUid());
                         Friend.this.setFullName((String)document.get("full_name"));
                         Friend.this.setIncognito((boolean)document.get("isIncognito"));
-                        Friend.this.setLat(((Long)document.get("lat")).doubleValue());
-                        Friend.this.setLng(((Long)document.get("lng")).doubleValue());
+                        Friend.this.setLat(((Double)document.get("lat")).doubleValue());
+                        Friend.this.setLng(((Double)document.get("lng")).doubleValue());
                         Friend.this.setProfilePicURL((String)document.get("profilePicURL"));
                         Friend.this.setUserName((String)document.get("user_name"));
                     } else {
@@ -135,8 +135,8 @@ public class Friend implements Serializable{
 
                 if (snapshot != null && snapshot.exists()) {
                     Friend.this.isIncognito = (boolean)snapshot.getData().get("isIncognito");
-                    Friend.this.lat = ((Long)snapshot.getData().get("lat")).doubleValue();
-                    Friend.this.lng = ((Long)snapshot.getData().get("lng")).doubleValue();
+                    Friend.this.lat = ((Double)snapshot.getData().get("lat")).doubleValue();
+                    Friend.this.lng = ((Double)snapshot.getData().get("lng")).doubleValue();
                     Friend.this.profilePicURL = (String)snapshot.getData().get("profilePicURL");
 
                     Log.d(TAG, "Current data: " + snapshot.getData());
@@ -255,8 +255,8 @@ public class Friend implements Serializable{
 
                 if (snapshot != null && snapshot.exists()) {
                     Friend.this.isIncognito = (boolean)snapshot.getData().get("isIncognito");
-                    Friend.this.lat = ((Long)snapshot.getData().get("lat")).doubleValue();
-                    Friend.this.lng = ((Long)snapshot.getData().get("lng")).doubleValue();
+                    Friend.this.lat = ((Double)snapshot.getData().get("lat")).doubleValue();
+                    Friend.this.lng = ((Double)snapshot.getData().get("lng")).doubleValue();
                     Friend.this.profilePicURL = (String)snapshot.getData().get("profilePicURL");
 
                     Log.d(TAG, "Current data: " + snapshot.getData());
