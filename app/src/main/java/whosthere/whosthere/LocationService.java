@@ -53,9 +53,11 @@ public class LocationService extends Service {
             Map<String, Object> data = new HashMap<>();
             data.put("lat", mLastLocation.getLatitude());
             data.put("lng", mLastLocation.getLongitude());
-            mDatabase.collection("users").document(mUser.getUid()).set(data, SetOptions.merge());
-            Log.e(TAG, "onLocationChanged: (" + mLastLocation.getLatitude() + ", " + mLastLocation.getLongitude() + ")  ---->" + locationInterval);
 
+            if (mUser != null) {
+                mDatabase.collection("users").document(mUser.getUid()).set(data, SetOptions.merge());
+                Log.e(TAG, "onLocationChanged: (" + mLastLocation.getLatitude() + ", " + mLastLocation.getLongitude() + ")  ---->" + locationInterval);
+            }
 
             /*if (mLastLocation != null) {
                 Map<String, Object> data = new HashMap<>();

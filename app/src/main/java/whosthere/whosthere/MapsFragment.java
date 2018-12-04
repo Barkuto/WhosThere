@@ -35,9 +35,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
@@ -58,10 +55,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private LocationCallback locationCallback;
 
     private static ArrayList<Friend> friendList = new ArrayList<>();
-
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore mDatabase;
-    private FirebaseUser mUser;
 
 
     public MapsFragment() {
@@ -140,11 +133,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             Log.e(TAG, "Can't find style. Error: ", e);
         }
 
-        /*
         mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(-37.813, 144.962))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
-        */
 
         // Set custom window for map location marker
         if (mMap != null) {
@@ -315,8 +306,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         friendList.add(new Friend(new LatLng(40.772290, -73.980208), "Damian", "Wayne", "Batman"));
         friendList.add(new Friend(new LatLng(37.421716, -122.084344),"Selina", "Kyle", "Catwoman"));
         friendList.add(new Friend(new LatLng(42.946947, -122.097894),"Katherine", "Kane", "Batwoman"));*/
-
-        friendList = ((NavigationBarActivity)getActivity()).getmFriendsList();
 
         mapFriends(friendList);
     }
