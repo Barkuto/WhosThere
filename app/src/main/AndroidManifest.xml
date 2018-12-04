@@ -26,8 +26,6 @@
             </intent-filter>
         </activity>-->
 
-        <activity android:name=".arthur_test">
-        </activity>
 
         <activity android:name=".profile_page_arthur">
         </activity>
@@ -35,9 +33,6 @@
 
         <activity android:name=".MyPreferencesActivity">
         </activity>
-        <activity
-            android:name=".LoginActivity"
-            android:label="@string/title_activity_login"></activity>
         <activity android:name=".Dashboard" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -87,7 +82,11 @@
             android:name=".AboutActivity"
             android:label="About"/>
 
-
+        <receiver android:name=".AlarmReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
 
     </application>
 

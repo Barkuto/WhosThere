@@ -82,8 +82,6 @@ public class LoginActivity extends AppCompatActivity {
                     });
                 }
 
-
-
                 DB.getUserInfo(mEmailView.getText().toString(), new Doer<UserInfo>() {
                     @Override
                     public void doFromResult(UserInfo result) {

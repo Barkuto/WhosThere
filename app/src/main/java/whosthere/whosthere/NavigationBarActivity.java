@@ -71,9 +71,10 @@ public class NavigationBarActivity extends AppCompatActivity
     private FirebaseFirestore mDatabase;
     private FirebaseUser mUser;
     private AlarmManager mAlarmManager;
-    private PendingIntent mNotificationReceiverPendingIntent;
     private static final long JITTER = 1000L;
     private static final long REPEAT_INTERVAL = 5000;
+
+    private PendingIntent pendingIntent;
 
     private final Friend me = new Friend();
 
@@ -89,21 +90,6 @@ public class NavigationBarActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_bar);
-
-
-
-        //SETUP ALARM
-
-/*
-        this.mAlarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
-        Intent mNotificationReceiverIntent = new Intent(NavigationBarActivity.this, AlarmNotificationReceiver.class);
-        mNotificationReceiverPendingIntent = PendingIntent.getBroadcast(NavigationBarActivity.this,
-                0, mNotificationReceiverIntent, 0);
-        mAlarmManager.set(AlarmManager.)
-*/
-
-
-        //END SETUP ALARM
 
         FirebaseInstanceId.getInstance().getInstanceId()
                 .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
@@ -306,13 +292,12 @@ public class NavigationBarActivity extends AppCompatActivity
 
 
         SharedPreferences myPrefs = PreferenceManager.getDefaultSharedPreferences(NavigationBarActivity.this);
-        //int interval = Integer.parseInt(myPrefs.getString("TEXT", "3600000"));
         int interval = Integer.parseInt(myPrefs.getString("FREQ", "3600000"));
         Intent serviceIntent = new Intent(this, LocationService.class);
         serviceIntent.putExtra("interval", interval);
         startService(serviceIntent);
-        Toast.makeText(this, myPrefs.getString("FREQ", "1"), Toast.LENGTH_SHORT).show();
 
+        /*
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 new BroadcastReceiver() {
                     @Override
@@ -333,7 +318,7 @@ public class NavigationBarActivity extends AppCompatActivity
                         }
                     }
                 }, new IntentFilter(LocationService.ACTION_LOCATION_BROADCAST)
-        );
+        );*/
 
         //FRIEND REQUEST LISTENER:::
 
@@ -358,18 +343,28 @@ public class NavigationBarActivity extends AppCompatActivity
         //END FRIEND REQUEST LISTENER
 
 
+        Intent alarmIntent = new Intent(NavigationBarActivity.this, AlarmReceiver.class);
+        pendingIntent = PendingIntent.getBroadcast(NavigationBarActivity.this, 0, alarmIntent, 0);
+        //start();
 
     }
+
+    public void start() {
+        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        int interval = 1;
+
+        manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+        //Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
+    }
+
 
     @Override
     protected void onResume() {
         SharedPreferences myPrefs = PreferenceManager.getDefaultSharedPreferences(NavigationBarActivity.this);
-        //int interval = Integer.parseInt(myPrefs.getString("TEXT", "3600000"));
         int interval = Integer.parseInt(myPrefs.getString("FREQ", "3600000"));
         Intent serviceIntent = new Intent(this, LocationService.class);
         serviceIntent.putExtra("interval", interval);
         startService(serviceIntent);
-        //Toast.makeText(this, myPrefs.getString("FREQ", "1"), Toast.LENGTH_SHORT).show();
 
         super.onResume();
         this.pullFriendUpdates();
@@ -379,7 +374,12 @@ public class NavigationBarActivity extends AppCompatActivity
 
     @Override
     protected void onPause() {
-        startService(new Intent(this, LocationService.class));
+        SharedPreferences myPrefs = PreferenceManager.getDefaultSharedPreferences(NavigationBarActivity.this);
+        int interval = Integer.parseInt(myPrefs.getString("FREQ", "3600000"));
+        Intent serviceIntent = new Intent(this, LocationService.class);
+        serviceIntent.putExtra("interval", interval);
+        startService(serviceIntent);
+
         super.onPause();
         this.pullFriendUpdates();
 

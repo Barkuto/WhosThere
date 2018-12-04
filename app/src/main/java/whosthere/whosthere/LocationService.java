@@ -5,14 +5,19 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
@@ -21,12 +26,16 @@ import java.util.Map;
 public class LocationService extends Service {
     private static final String TAG = "LOCATION SERVICE";
     private LocationManager mLocationManager = null;
-    private int locationInterval = 3600000;
+    private int locationInterval = 360;
     private static final float LOCATION_DISTANCE = 0;
 
     public static final String ACTION_LOCATION_BROADCAST = LocationService.class.getName() + "LocationBroadcast";
     public static final String EXTRA_LATITUDE = "extra_latitude";
     public static final String EXTRA_LONGITUDE = "extra_longitude";
+
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore mDatabase;
+    private FirebaseUser mUser;
 
     private class LocationListener implements android.location.LocationListener {
         Location mLastLocation;
@@ -41,11 +50,26 @@ public class LocationService extends Service {
             // Log.e(TAG, "onLocationChanged: (" + location.getLatitude() + ", " + location.getLongitude() + ") --> " + location.getProvider());
             mLastLocation.set(location);
 
-            if (mLastLocation != null) {
-                sendMessageToUI(String.valueOf(mLastLocation.getLatitude()), String.valueOf(mLastLocation.getLongitude()));
+            Map<String, Object> data = new HashMap<>();
+            data.put("lat", mLastLocation.getLatitude());
+            data.put("lng", mLastLocation.getLongitude());
+            mDatabase.collection("users").document(mUser.getUid()).set(data, SetOptions.merge());
+            Log.e(TAG, "onLocationChanged: (" + mLastLocation.getLatitude() + ", " + mLastLocation.getLongitude() + ")  ---->" + locationInterval);
+
+
+            /*if (mLastLocation != null) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("lat", mLastLocation.getLatitude());
+                data.put("lng", mLastLocation.getLongitude());
+                mDatabase.collection("users").document(mUser.getUid()).set(data, SetOptions.merge());
+
+
             } else {
-                sendMessageToUI(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
-            }
+                Map<String, Object> data = new HashMap<>();
+                data.put("lat", location.getLatitude());
+                data.put("lng", location.getLongitude());
+                mDatabase.collection("users").document(mUser.getUid()).set(data, SetOptions.merge());
+            }*/
         }
 
         @Override
@@ -86,9 +110,16 @@ public class LocationService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         //Log.e(TAG, "onStartCommand");
 
+        this.mAuth = FirebaseAuth.getInstance();
+        this.mDatabase = FirebaseFirestore.getInstance();
+        this.mUser = mAuth.getCurrentUser();
+
+        SharedPreferences myPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int interval = Integer.parseInt(myPrefs.getString("FREQ", "360"));
+        locationInterval = interval;
 
         if (intent != null) {
-            locationInterval = intent.getIntExtra("interval", 3600000);
+            locationInterval = intent.getIntExtra("interval", 360);
             Log.e(TAG, "Changed interval to " + locationInterval);
         } else {
             locationInterval = 1;
