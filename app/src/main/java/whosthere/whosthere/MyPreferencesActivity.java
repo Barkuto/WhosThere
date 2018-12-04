@@ -8,11 +8,25 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class MyPreferencesActivity extends PreferenceActivity {
+
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore mDatabase;
+    private FirebaseUser mUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        this.mAuth = FirebaseAuth.getInstance();
+        this.mDatabase = FirebaseFirestore.getInstance();
+        this.mUser = mAuth.getCurrentUser();
         getFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragment()).commit();
     }
 
@@ -70,12 +84,19 @@ public class MyPreferencesActivity extends PreferenceActivity {
                 case "distance_key":
                     String distance = sharedPreferences.getString(key,"");
                     if(distance==null){
-                        editor.putString("DIST", "1").apply();                        String test = myPrefs.getString(key,"");
+                        editor.putString("DIST", "1").apply();
+                        String test = myPrefs.getString(key,"");
                         Toast.makeText(getActivity(),test,Toast.LENGTH_LONG).show();
                     } else {
                         editor.putString("DIST", distance).apply();
                         String test = myPrefs.getString(key,"");
                         Toast.makeText(getActivity(),test,Toast.LENGTH_LONG).show();
+
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("radius", Double.parseDouble(distance));
+
+                        ((MyPreferencesActivity)getActivity()).mDatabase.collection("users").document(((MyPreferencesActivity)getActivity()).mUser.getUid())
+                                .set(data, SetOptions.merge());
                     }
 
                     break;

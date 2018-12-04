@@ -234,8 +234,8 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
                             newUser.put("full_name", mFirstName.getText().toString());
                             newUser.put("user_name", mUserName.getText().toString());
                             newUser.put("profilePicURL", "https://firebasestorage.googleapis.com/v0/b/whosthere-732a4.appspot.com/o/profilePics%2Fdefault_avatar.png?alt=media&token=b899ec9d-8de6-4b42-8e76-5f126205f7e1");
-                            newUser.put("lat", 0.0f);
-                            newUser.put("lng", 0.0f);
+                            newUser.put("lat", new Double(0.0999f));
+                            newUser.put("lng", new Double(0.0999f));
                             newUser.put("isIncognito", false);
                             newUser.put("radius", 1);
                             mDatabase.collection("users").document(mAuth.getUid())

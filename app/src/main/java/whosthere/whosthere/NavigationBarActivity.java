@@ -512,6 +512,7 @@ public class NavigationBarActivity extends AppCompatActivity
                     }
                 });
 
+
     }
 
     public void showSnackBar(String text){
