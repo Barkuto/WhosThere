@@ -122,7 +122,7 @@
 
     <!--arthur part-->
 
-    <string name="distribution_set">Do Not Disturb Mode</string>
+    <string name="distribution_set">Send Notification</string>
     <string name="setting">setting</string>
     <string name="logout">Log out</string>
     <string name="option">Option</string>

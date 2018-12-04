@@ -79,6 +79,7 @@ public class NavigationBarActivity extends AppCompatActivity
     private final Friend me = new Friend();
 
     public ArrayList<Friend> getmFriendsList() {
+        //this.pullFriendUpdates();
         return mFriendsList;
     }
 
